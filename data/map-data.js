@@ -192,6 +192,7 @@
         level: "core",
         title: "turn & run_turn",
         tier: "核心",
+        url: "pages/run-turn.html",
         x: 1040,
         y: 380,
         width: 300,

@@ -989,6 +989,168 @@ h3.topic-heading {
   transform: rotate(-4deg);
 }
 
+.run-turn-paper {
+  width: min(100%, 1560px);
+}
+
+.run-turn-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+  gap: clamp(18px, 3vw, 34px);
+  align-items: start;
+}
+
+.run-turn-canvas {
+  position: relative;
+  min-height: 70vh;
+  padding: clamp(16px, 2.4vw, 28px);
+  overflow-x: auto;
+  background:
+    linear-gradient(rgba(49, 42, 34, 0.045) 1px, transparent 1px) 0 0 / 100% 30px,
+    rgba(255, 253, 247, 0.68);
+  border: 2px dashed rgba(146, 134, 117, 0.72);
+  box-shadow: 0 14px 30px rgba(61, 50, 33, 0.08);
+}
+
+.run-turn-svg {
+  display: block;
+  width: min(100%, 920px);
+  min-width: 760px;
+  height: auto;
+  margin: 0 auto;
+  overflow: visible;
+  font-family: var(--hand-font);
+}
+
+.run-turn-region {
+  fill: rgba(242, 201, 182, 0.08);
+  stroke: rgba(180, 59, 46, 0.5);
+  stroke-width: 2;
+  stroke-dasharray: 10 10;
+}
+
+.run-turn-edge {
+  fill: none;
+  stroke: rgba(49, 42, 34, 0.72);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  marker-end: url("#run-turn-arrow");
+}
+
+.run-turn-arrow-mark {
+  fill: none;
+  stroke: rgba(49, 42, 34, 0.72);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.run-turn-edge-label {
+  fill: #11100c;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.run-turn-node {
+  cursor: pointer;
+  outline: none;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 160ms ease;
+}
+
+.run-turn-node:hover,
+.run-turn-node:focus-visible,
+.run-turn-node.is-active {
+  transform: translateY(-3px) rotate(-0.25deg);
+}
+
+.run-turn-node-shape {
+  fill: rgba(255, 253, 247, 0.96);
+  stroke: #557a64;
+  stroke-width: 2.4;
+  filter: url("#roughen");
+}
+
+.run-turn-node.is-accent .run-turn-node-shape {
+  stroke: #b43b2e;
+}
+
+.run-turn-node.is-decision .run-turn-node-shape {
+  fill: rgba(244, 231, 169, 0.7);
+  stroke: rgba(49, 42, 34, 0.82);
+}
+
+.run-turn-node.is-terminator .run-turn-node-shape {
+  fill: rgba(242, 201, 182, 0.78);
+  stroke: #b43b2e;
+  stroke-width: 3.2;
+}
+
+.run-turn-node.is-active .run-turn-node-shape,
+.run-turn-node:focus-visible .run-turn-node-shape {
+  stroke: #b43b2e;
+  stroke-width: 4;
+}
+
+.run-turn-node-label {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  color: #11100c;
+  font-family: var(--hand-font);
+  font-size: 15.5px;
+  font-weight: 800;
+  line-height: 1.22;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.run-turn-detail {
+  position: sticky;
+  top: 26px;
+  min-height: 220px;
+  padding: 22px 24px 26px;
+  background:
+    linear-gradient(rgba(49, 42, 34, 0.045) 1px, transparent 1px) 0 10px / 100% 28px,
+    #f4e7a9;
+  border: 2px dashed rgba(146, 134, 117, 0.72);
+  box-shadow: 0 16px 34px rgba(61, 50, 33, 0.12);
+  transform: rotate(0.5deg);
+}
+
+.run-turn-detail::before {
+  content: "";
+  position: absolute;
+  top: -13px;
+  left: 42px;
+  width: 92px;
+  height: 24px;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.08)),
+    rgba(207, 196, 170, 0.68);
+  box-shadow: 0 5px 12px rgba(54, 44, 30, 0.1);
+  transform: rotate(-5deg);
+}
+
+.run-turn-detail h2 {
+  margin: 8px 0 14px;
+  color: #11100c;
+  font-size: 1.45rem;
+  line-height: 1.25;
+}
+
+.run-turn-detail p {
+  margin: 0;
+  color: #11100c;
+  font-size: 1.04rem;
+  line-height: 1.75;
+}
+
 .figure-tape {
   position: absolute;
   top: -15px;
@@ -1062,5 +1224,18 @@ h3.topic-heading {
 
   .topic-child-card {
     min-height: 104px;
+  }
+
+  .run-turn-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .run-turn-detail {
+    position: relative;
+    top: auto;
+  }
+
+  .run-turn-svg {
+    min-width: 700px;
   }
 }

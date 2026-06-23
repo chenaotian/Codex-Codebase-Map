@@ -10,7 +10,11 @@ from pathlib import Path
 BLOG_ROOT = Path(__file__).resolve().parents[1]
 EXTERNAL_DOCS = BLOG_ROOT.parent / "final_docs"
 SNAPSHOT_DOCS = BLOG_ROOT / "content" / "final_docs"
+EXTERNAL_RUN_TURN_DIAGRAM = BLOG_ROOT.parent / "run_turn.drawio"
+SNAPSHOT_DIAGRAMS = BLOG_ROOT / "content" / "diagrams"
+RUN_TURN_DIAGRAM_SNAPSHOT = SNAPSHOT_DIAGRAMS / "run_turn.drawio"
 OUTPUT_FILE = BLOG_ROOT / "data" / "docs-content.js"
+RUN_TURN_DIAGRAM_OUTPUT_FILE = BLOG_ROOT / "data" / "run-turn-diagram.js"
 
 KNOWN_DOCS = {
     "plan模式与plan工具": {
@@ -138,6 +142,37 @@ def copy_external_docs() -> tuple[Path, str]:
     raise FileNotFoundError(f"No final_docs source found: {EXTERNAL_DOCS} or {SNAPSHOT_DOCS}")
 
 
+def read_text_with_fallback(path: Path) -> str:
+    try:
+        return path.read_text(encoding="utf-8-sig")
+    except UnicodeDecodeError:
+        return path.read_text(encoding="gb18030")
+
+
+def sync_run_turn_diagram() -> tuple[Path | None, str]:
+    SNAPSHOT_DIAGRAMS.mkdir(parents=True, exist_ok=True)
+
+    if EXTERNAL_RUN_TURN_DIAGRAM.exists():
+        shutil.copy2(EXTERNAL_RUN_TURN_DIAGRAM, RUN_TURN_DIAGRAM_SNAPSHOT)
+        return RUN_TURN_DIAGRAM_SNAPSHOT, "external"
+
+    if RUN_TURN_DIAGRAM_SNAPSHOT.exists():
+        return RUN_TURN_DIAGRAM_SNAPSHOT, "snapshot"
+
+    return None, "missing"
+
+
+def write_run_turn_diagram(diagram_path: Path | None, source_kind: str) -> None:
+    payload = {
+        "generatedAt": datetime.now().isoformat(timespec="seconds"),
+        "sourceKind": source_kind,
+        "sourceFile": "run_turn.drawio",
+        "xml": read_text_with_fallback(diagram_path) if diagram_path else "",
+    }
+    js = "window.CodexRunTurnDiagram = " + json.dumps(payload, ensure_ascii=False, indent=2) + ";\n"
+    RUN_TURN_DIAGRAM_OUTPUT_FILE.write_text(js, encoding="utf-8")
+
+
 def build_docs(source: Path) -> list[dict]:
     docs: list[dict] = []
 
@@ -191,6 +226,7 @@ def build_docs(source: Path) -> list[dict]:
 
 def main() -> None:
     source, source_kind = copy_external_docs()
+    diagram_path, diagram_source_kind = sync_run_turn_diagram()
     docs = build_docs(source)
     payload = {
         "generatedAt": datetime.now().isoformat(timespec="seconds"),
@@ -199,7 +235,9 @@ def main() -> None:
     }
     js = "window.CodexDocsContent = " + json.dumps(payload, ensure_ascii=False, indent=2) + ";\n"
     OUTPUT_FILE.write_text(js, encoding="utf-8")
+    write_run_turn_diagram(diagram_path, diagram_source_kind)
     print(f"Synced {len(docs)} docs from {source_kind} source into {SNAPSHOT_DOCS}")
+    print(f"Synced run_turn.drawio from {diagram_source_kind} source into {SNAPSHOT_DIAGRAMS}")
 
 
 if __name__ == "__main__":
