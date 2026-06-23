@@ -1049,6 +1049,71 @@ h3.topic-heading {
   opacity: 0.8;
 }
 
+.run-turn-viewer {
+  position: relative;
+  min-width: 780px;
+  min-height: 420px;
+}
+
+.run-turn-viewer-status {
+  padding: 28px 24px;
+  color: var(--ink-soft);
+  font-size: 1.08rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.run-turn-viewer .mxgraph {
+  position: relative;
+  z-index: 1;
+  max-width: none !important;
+  background: transparent !important;
+}
+
+.run-turn-viewer .mxgraph svg,
+.run-turn-viewer > svg {
+  display: block;
+  max-width: none !important;
+}
+
+.run-turn-hotspots {
+  position: absolute;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.run-turn-hotspot {
+  position: absolute;
+  padding: 0;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  pointer-events: auto;
+}
+
+.run-turn-hotspot:focus-visible,
+.run-turn-hotspot.is-active {
+  outline: 3px dashed rgba(49, 95, 121, 0.72);
+  outline-offset: 4px;
+  background: rgba(49, 95, 121, 0.05);
+}
+
+.run-turn-canvas.is-viewer-loading .run-turn-svg,
+.run-turn-canvas.is-viewer-ready .run-turn-svg {
+  display: none;
+}
+
+.run-turn-canvas.is-fallback .run-turn-viewer {
+  min-height: 0;
+  margin-bottom: 14px;
+}
+
+.run-turn-canvas.is-fallback .mxgraph,
+.run-turn-canvas.is-fallback .run-turn-hotspots {
+  display: none;
+}
+
 .run-turn-svg {
   display: block;
   width: 100%;
