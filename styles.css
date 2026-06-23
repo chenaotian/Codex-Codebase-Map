@@ -1007,7 +1007,7 @@ h3.topic-heading {
 
 .run-turn-layout {
   display: grid;
-  grid-template-columns: minmax(660px, 1.12fr) minmax(600px, 0.88fr);
+  grid-template-columns: minmax(520px, 0.9fr) minmax(520px, 1.1fr);
   gap: clamp(22px, 2.6vw, 42px);
   align-items: start;
 }
@@ -1070,21 +1070,28 @@ h3.topic-heading {
 .run-turn-edge-halo {
   fill: none;
   stroke: rgba(255, 253, 247, 0.94);
-  stroke-width: 10;
+  stroke-width: 8;
   stroke-linecap: round;
   stroke-linejoin: round;
   pointer-events: none;
 }
 
+.run-turn-edge-halo.is-short-bridge {
+  stroke-width: 4;
+}
+
 .run-turn-edge {
   fill: none;
-  stroke: rgba(49, 42, 34, 0.68);
-  stroke-width: 2.2;
+  stroke: rgba(49, 42, 34, 0.74);
+  stroke-width: 2.45;
   stroke-linecap: round;
   stroke-linejoin: round;
   marker-end: url("#run-turn-arrow");
-  filter: url("#roughen");
   pointer-events: none;
+}
+
+.run-turn-edge.is-short-bridge {
+  stroke-width: 3.1;
 }
 
 .run-turn-arrow-mark {
@@ -1232,7 +1239,7 @@ h3.topic-heading {
   transform: rotate(5deg);
 }
 
-@media (max-width: 1460px) {
+@media (max-width: 1120px) {
   .run-turn-layout {
     grid-template-columns: 1fr;
   }

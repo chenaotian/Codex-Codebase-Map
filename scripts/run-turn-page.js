@@ -275,6 +275,17 @@ function midpointOnRoute(points) {
   return route[Math.floor(route.length / 2)] || { x: 0, y: 0 };
 }
 
+function routeLength(points) {
+  const route = compactPoints(points);
+  let total = 0;
+
+  for (let index = 1; index < route.length; index += 1) {
+    total += Math.hypot(route[index].x - route[index - 1].x, route[index].y - route[index - 1].y);
+  }
+
+  return total;
+}
+
 function shapeElement(node) {
   const common = { class: "run-turn-node-shape" };
 
@@ -479,12 +490,13 @@ function renderDiagram(diagram) {
   diagram.edges.forEach((edge) => {
     const points = connectorPoints(edge, diagram);
     const d = roundedPolyline(points);
+    const isShortBridge = points.length === 2 && routeLength(points) < 95;
     const halo = svgElement("path", {
-      class: "run-turn-edge-halo",
+      class: ["run-turn-edge-halo", isShortBridge ? "is-short-bridge" : ""].filter(Boolean).join(" "),
       d
     });
     const path = svgElement("path", {
-      class: "run-turn-edge",
+      class: ["run-turn-edge", isShortBridge ? "is-short-bridge" : ""].filter(Boolean).join(" "),
       d
     });
     edgeLayer.appendChild(halo);
