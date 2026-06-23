@@ -1080,6 +1080,10 @@ h3.topic-heading {
   stroke-width: 4;
 }
 
+.run-turn-edge-halo.is-absolute-route {
+  stroke-width: 7;
+}
+
 .run-turn-edge {
   fill: none;
   stroke: rgba(49, 42, 34, 0.74);
@@ -1092,6 +1096,11 @@ h3.topic-heading {
 
 .run-turn-edge.is-short-bridge {
   stroke-width: 3.1;
+}
+
+.run-turn-edge.is-absolute-route {
+  stroke: rgba(180, 59, 46, 0.76);
+  stroke-width: 2.7;
 }
 
 .run-turn-arrow-mark {
@@ -1107,7 +1116,7 @@ h3.topic-heading {
   stroke: rgba(255, 253, 247, 0.92);
   stroke-width: 6px;
   paint-order: stroke fill;
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 900;
   pointer-events: none;
 }

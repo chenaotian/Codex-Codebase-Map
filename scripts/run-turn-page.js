@@ -68,6 +68,7 @@ function getGeometry(cell) {
 
   const sourcePoint = Array.from(geometry.children).find((child) => child.getAttribute("as") === "sourcePoint");
   const targetPoint = Array.from(geometry.children).find((child) => child.getAttribute("as") === "targetPoint");
+  const offsetPoint = Array.from(geometry.children).find((child) => child.getAttribute("as") === "offset");
 
   return {
     x: numberOrZero(geometry.getAttribute("x")),
@@ -77,7 +78,8 @@ function getGeometry(cell) {
     relative: geometry.getAttribute("relative") === "1",
     points: readGeometryPoints(geometry),
     sourcePoint: sourcePoint ? geometryPoint(sourcePoint) : null,
-    targetPoint: targetPoint ? geometryPoint(targetPoint) : null
+    targetPoint: targetPoint ? geometryPoint(targetPoint) : null,
+    offsetPoint: offsetPoint ? geometryPoint(offsetPoint) : null
   };
 }
 
@@ -142,9 +144,9 @@ function boundaryPoint(node, toward) {
 
 function edgeEndpoint(node, edge, prefix, toward) {
   const explicit = prefix === "exit" ? edge.geometry.sourcePoint : edge.geometry.targetPoint;
-  if (explicit) return explicit;
+  if (!node) return explicit || toward || { x: 0, y: 0 };
 
-  return styleAnchor(node, edge.style, prefix) || boundaryPoint(node, toward);
+  return styleAnchor(node, edge.style, prefix) || explicit || boundaryPoint(node, toward);
 }
 
 function samePoint(a, b) {
@@ -194,11 +196,13 @@ function orthogonalize(points) {
 }
 
 function connectorPoints(edge, diagram) {
-  const source = diagram.nodeById.get(edge.source);
-  const target = diagram.nodeById.get(edge.target);
+  const source = edge.source ? diagram.nodeById.get(edge.source) : null;
+  const target = edge.target ? diagram.nodeById.get(edge.target) : null;
   const waypoints = edge.geometry.points || [];
-  const firstToward = waypoints[0] || nodeCenter(target);
-  const lastToward = waypoints[waypoints.length - 1] || nodeCenter(source);
+  const fallbackStart = edge.geometry.sourcePoint || waypoints[0] || (target ? nodeCenter(target) : edge.geometry.targetPoint);
+  const fallbackEnd = edge.geometry.targetPoint || waypoints[waypoints.length - 1] || (source ? nodeCenter(source) : edge.geometry.sourcePoint);
+  const firstToward = waypoints[0] || fallbackEnd;
+  const lastToward = waypoints[waypoints.length - 1] || fallbackStart;
   const start = edgeEndpoint(source, edge, "exit", firstToward);
   const end = edgeEndpoint(target, edge, "entry", lastToward);
 
@@ -207,6 +211,30 @@ function connectorPoints(edge, diagram) {
   }
 
   return compactPoints(makeOrthogonalRoute(start, end));
+}
+
+function trimSegmentEnd(a, b, distance) {
+  if (!distance) return b;
+
+  const length = Math.hypot(b.x - a.x, b.y - a.y);
+  if (length <= distance + 1) return b;
+
+  return {
+    x: b.x - (b.x - a.x) * (distance / length),
+    y: b.y - (b.y - a.y) * (distance / length)
+  };
+}
+
+function trimRoute(points, startTrim = 0, endTrim = 0) {
+  const route = compactPoints(points);
+
+  if (route.length < 2) return route;
+
+  const trimmed = [...route];
+  trimmed[0] = trimSegmentEnd(trimmed[1], trimmed[0], startTrim);
+  trimmed[trimmed.length - 1] = trimSegmentEnd(trimmed[trimmed.length - 2], trimmed[trimmed.length - 1], endTrim);
+
+  return compactPoints(trimmed);
 }
 
 function roundedPolyline(points, radius = 18) {
@@ -275,6 +303,31 @@ function midpointOnRoute(points) {
   return route[Math.floor(route.length / 2)] || { x: 0, y: 0 };
 }
 
+function pointAtRouteRatio(points, ratio = 0.5) {
+  const route = compactPoints(points);
+  const safeRatio = Math.max(0, Math.min(1, ratio));
+  const total = routeLength(route);
+  let remaining = total * safeRatio;
+
+  for (let index = 1; index < route.length; index += 1) {
+    const start = route[index - 1];
+    const end = route[index];
+    const length = Math.hypot(end.x - start.x, end.y - start.y);
+
+    if (remaining <= length) {
+      const localRatio = length ? remaining / length : 0;
+      return {
+        x: start.x + (end.x - start.x) * localRatio,
+        y: start.y + (end.y - start.y) * localRatio
+      };
+    }
+
+    remaining -= length;
+  }
+
+  return route[route.length - 1] || { x: 0, y: 0 };
+}
+
 function routeLength(points) {
   const route = compactPoints(points);
   let total = 0;
@@ -284,6 +337,24 @@ function routeLength(points) {
   }
 
   return total;
+}
+
+function labelPosition(edge, points) {
+  const geometry = edge.labelGeometry;
+
+  if (!geometry) {
+    const center = midpointOnRoute(points);
+    return { x: center.x, y: center.y - 8 };
+  }
+
+  const hasRelativeX = Number.isFinite(geometry.x) && geometry.x !== 0;
+  const ratio = hasRelativeX ? Math.max(0.08, Math.min(0.92, (geometry.x + 1) / 2)) : 0.5;
+  const base = pointAtRouteRatio(points, ratio);
+
+  return {
+    x: base.x + (geometry.offsetPoint?.x || 0),
+    y: base.y + (geometry.offsetPoint?.y || geometry.y || -8)
+  };
 }
 
 function shapeElement(node) {
@@ -385,6 +456,12 @@ function parseDiagram(xml) {
     .map((cell) => {
       const label = cleanCellText(cell.getAttribute("value") || "");
       const labelData = edgeLabels.get(cell.getAttribute("id"));
+      const geometry = getGeometry(cell) || {
+        points: [],
+        sourcePoint: null,
+        targetPoint: null,
+        offsetPoint: null
+      };
 
       return {
         id: cell.getAttribute("id"),
@@ -393,12 +470,33 @@ function parseDiagram(xml) {
         label: label || labelData?.text || "",
         labelGeometry: labelData?.geometry || null,
         style: parseStyle(cell.getAttribute("style") || ""),
-        geometry: getGeometry(cell) || { points: [], sourcePoint: null, targetPoint: null }
+        geometry
       };
     })
-    .filter((edge) => nodeById.has(edge.source) && nodeById.has(edge.target));
+    .filter((edge) => {
+      const hasSource = edge.source ? nodeById.has(edge.source) : Boolean(edge.geometry.sourcePoint);
+      const hasTarget = edge.target ? nodeById.has(edge.target) : Boolean(edge.geometry.targetPoint);
+      return hasSource && hasTarget;
+    });
 
   return { nodes, regions, edges, nodeById };
+}
+
+function edgeBoundsItems(edges) {
+  return edges.flatMap((edge) => {
+    const points = [
+      edge.geometry.sourcePoint,
+      ...(edge.geometry.points || []),
+      edge.geometry.targetPoint
+    ].filter(Boolean);
+
+    return points.map((point) => ({
+      x: point.x,
+      y: point.y,
+      width: 1,
+      height: 1
+    }));
+  });
 }
 
 function diagramBounds(items) {
@@ -436,7 +534,7 @@ function setActiveNode(group, node) {
 }
 
 function renderDiagram(diagram) {
-  const bounds = diagramBounds([...diagram.nodes, ...diagram.regions]);
+  const bounds = diagramBounds([...diagram.nodes, ...diagram.regions, ...edgeBoundsItems(diagram.edges)]);
   svg.replaceChildren();
   svg.setAttribute("viewBox", `${bounds.x} ${bounds.y} ${bounds.width} ${bounds.height}`);
   svg.setAttribute("preserveAspectRatio", "xMidYMin meet");
@@ -488,26 +586,40 @@ function renderDiagram(diagram) {
   });
 
   diagram.edges.forEach((edge) => {
-    const points = connectorPoints(edge, diagram);
+    const rawPoints = connectorPoints(edge, diagram);
+    const points = trimRoute(
+      rawPoints,
+      edge.source && diagram.nodeById.has(edge.source) ? 2 : 0,
+      edge.target && diagram.nodeById.has(edge.target) ? 7 : 0
+    );
     const d = roundedPolyline(points);
     const isShortBridge = points.length === 2 && routeLength(points) < 95;
+    const isAbsoluteRoute = !edge.source || !edge.target;
     const halo = svgElement("path", {
-      class: ["run-turn-edge-halo", isShortBridge ? "is-short-bridge" : ""].filter(Boolean).join(" "),
+      class: [
+        "run-turn-edge-halo",
+        isShortBridge ? "is-short-bridge" : "",
+        isAbsoluteRoute ? "is-absolute-route" : ""
+      ].filter(Boolean).join(" "),
       d
     });
     const path = svgElement("path", {
-      class: ["run-turn-edge", isShortBridge ? "is-short-bridge" : ""].filter(Boolean).join(" "),
+      class: [
+        "run-turn-edge",
+        isShortBridge ? "is-short-bridge" : "",
+        isAbsoluteRoute ? "is-absolute-route" : ""
+      ].filter(Boolean).join(" "),
       d
     });
     edgeLayer.appendChild(halo);
     edgeLayer.appendChild(path);
 
     if (edge.label) {
-      const labelPosition = midpointOnRoute(points);
+      const labelPoint = labelPosition(edge, rawPoints);
       const label = svgElement("text", {
         class: "run-turn-edge-label",
-        x: labelPosition.x,
-        y: labelPosition.y - 8,
+        x: labelPoint.x,
+        y: labelPoint.y,
         "text-anchor": "middle"
       });
       label.textContent = edge.label;
