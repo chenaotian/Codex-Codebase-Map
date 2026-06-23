@@ -740,16 +740,6 @@ function roundedPolyline(points, radius = 18) {
   return commands.join(" ");
 }
 
-function straightPolyline(points) {
-  const route = compactPoints(points);
-
-  if (route.length < 2) return "";
-
-  return route
-    .map((point, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`)
-    .join(" ");
-}
-
 function midpointOnRoute(points) {
   const route = compactPoints(points);
   const lengths = [];
@@ -1087,9 +1077,7 @@ function renderDiagram(diagram) {
     );
     const isShortBridge = points.length === 2 && routeLength(points) < 95;
     const isAbsoluteRoute = !edge.source || !edge.target;
-    const d = routeKind === "decision-fanout"
-      ? straightPolyline(points)
-      : roundedPolyline(points);
+    const d = roundedPolyline(points);
     const halo = svgElement("path", {
       class: [
         "run-turn-edge-halo",
