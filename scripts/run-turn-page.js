@@ -35,16 +35,49 @@ function cleanCellText(value = "") {
   return holder.textContent.replace(/\s+/g, " ").trim();
 }
 
+function numberOrZero(value) {
+  const parsed = Number(value || 0);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function geometryPoint(element) {
+  return {
+    x: numberOrZero(element.getAttribute("x")),
+    y: numberOrZero(element.getAttribute("y"))
+  };
+}
+
+function readGeometryPoints(geometry) {
+  const points = [];
+
+  Array.from(geometry.children).forEach((child) => {
+    if (child.tagName === "Array" && child.getAttribute("as") === "points") {
+      Array.from(child.querySelectorAll("mxPoint")).forEach((point) => {
+        points.push(geometryPoint(point));
+      });
+    }
+  });
+
+  return points;
+}
+
 function getGeometry(cell) {
   const geometry = cell.querySelector("mxGeometry");
 
   if (!geometry) return null;
 
+  const sourcePoint = Array.from(geometry.children).find((child) => child.getAttribute("as") === "sourcePoint");
+  const targetPoint = Array.from(geometry.children).find((child) => child.getAttribute("as") === "targetPoint");
+
   return {
-    x: Number(geometry.getAttribute("x") || 0),
-    y: Number(geometry.getAttribute("y") || 0),
-    width: Number(geometry.getAttribute("width") || 0),
-    height: Number(geometry.getAttribute("height") || 0)
+    x: numberOrZero(geometry.getAttribute("x")),
+    y: numberOrZero(geometry.getAttribute("y")),
+    width: numberOrZero(geometry.getAttribute("width")),
+    height: numberOrZero(geometry.getAttribute("height")),
+    relative: geometry.getAttribute("relative") === "1",
+    points: readGeometryPoints(geometry),
+    sourcePoint: sourcePoint ? geometryPoint(sourcePoint) : null,
+    targetPoint: targetPoint ? geometryPoint(targetPoint) : null
   };
 }
 
@@ -55,44 +88,197 @@ function nodeCenter(node) {
   };
 }
 
-function anchorPoint(source, target) {
-  const a = nodeCenter(source);
-  const b = nodeCenter(target);
-  const dx = b.x - a.x;
-  const dy = b.y - a.y;
+function styleNumber(style, key) {
+  if (!(key in style)) return null;
 
-  if (Math.abs(dx) > Math.abs(dy)) {
-    return {
-      from: { x: a.x + Math.sign(dx || 1) * source.width / 2, y: a.y },
-      to: { x: b.x - Math.sign(dx || 1) * target.width / 2, y: b.y },
-      horizontal: true
-    };
-  }
+  const parsed = Number(style[key]);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function styleAnchor(node, style, prefix) {
+  const relX = styleNumber(style, `${prefix}X`);
+  const relY = styleNumber(style, `${prefix}Y`);
+
+  if (relX === null || relY === null) return null;
 
   return {
-    from: { x: a.x, y: a.y + Math.sign(dy || 1) * source.height / 2 },
-    to: { x: b.x, y: b.y - Math.sign(dy || 1) * target.height / 2 },
-    horizontal: false
+    x: node.x + node.width * relX,
+    y: node.y + node.height * relY
   };
 }
 
-function connectorPath(source, target) {
-  const { from, to, horizontal } = anchorPoint(source, target);
+function isDecision(node) {
+  return (node.style.shape || "").includes("decision");
+}
 
-  if (horizontal) {
-    const midX = (from.x + to.x) / 2;
-    return `M ${from.x} ${from.y} C ${midX} ${from.y} ${midX} ${to.y} ${to.x} ${to.y}`;
+function isTerminator(node) {
+  return (node.style.shape || "").includes("terminator");
+}
+
+function boundaryPoint(node, toward) {
+  const center = nodeCenter(node);
+  const dx = toward.x - center.x;
+  const dy = toward.y - center.y;
+
+  if (Math.abs(dx) < 0.001 && Math.abs(dy) < 0.001) return center;
+
+  if (isDecision(node)) {
+    const scale = 1 / (Math.abs(dx) / (node.width / 2) + Math.abs(dy) / (node.height / 2));
+    return {
+      x: center.x + dx * scale,
+      y: center.y + dy * scale
+    };
   }
 
-  const midY = (from.y + to.y) / 2;
-  return `M ${from.x} ${from.y} C ${from.x} ${midY} ${to.x} ${midY} ${to.x} ${to.y}`;
+  const scaleX = Math.abs(dx) < 0.001 ? Infinity : node.width / 2 / Math.abs(dx);
+  const scaleY = Math.abs(dy) < 0.001 ? Infinity : node.height / 2 / Math.abs(dy);
+  const scale = Math.min(scaleX, scaleY);
+
+  return {
+    x: center.x + dx * scale,
+    y: center.y + dy * scale
+  };
+}
+
+function edgeEndpoint(node, edge, prefix, toward) {
+  const explicit = prefix === "exit" ? edge.geometry.sourcePoint : edge.geometry.targetPoint;
+  if (explicit) return explicit;
+
+  return styleAnchor(node, edge.style, prefix) || boundaryPoint(node, toward);
+}
+
+function samePoint(a, b) {
+  return Math.abs(a.x - b.x) < 0.5 && Math.abs(a.y - b.y) < 0.5;
+}
+
+function compactPoints(points) {
+  return points.reduce((result, point) => {
+    if (!result.length || !samePoint(result[result.length - 1], point)) {
+      result.push(point);
+    }
+
+    return result;
+  }, []);
+}
+
+function makeOrthogonalRoute(start, end) {
+  if (Math.abs(start.x - end.x) < 4 || Math.abs(start.y - end.y) < 4) {
+    return [start, end];
+  }
+
+  if (Math.abs(end.y - start.y) >= Math.abs(end.x - start.x)) {
+    const midY = (start.y + end.y) / 2;
+    return [start, { x: start.x, y: midY }, { x: end.x, y: midY }, end];
+  }
+
+  const midX = (start.x + end.x) / 2;
+  return [start, { x: midX, y: start.y }, { x: midX, y: end.y }, end];
+}
+
+function orthogonalize(points) {
+  const routed = [points[0]];
+
+  points.slice(1).forEach((point) => {
+    const previous = routed[routed.length - 1];
+    const isAligned = Math.abs(previous.x - point.x) < 4 || Math.abs(previous.y - point.y) < 4;
+
+    if (!isAligned) {
+      const verticalFirst = Math.abs(point.y - previous.y) >= Math.abs(point.x - previous.x);
+      routed.push(verticalFirst ? { x: previous.x, y: point.y } : { x: point.x, y: previous.y });
+    }
+
+    routed.push(point);
+  });
+
+  return compactPoints(routed);
+}
+
+function connectorPoints(edge, diagram) {
+  const source = diagram.nodeById.get(edge.source);
+  const target = diagram.nodeById.get(edge.target);
+  const waypoints = edge.geometry.points || [];
+  const firstToward = waypoints[0] || nodeCenter(target);
+  const lastToward = waypoints[waypoints.length - 1] || nodeCenter(source);
+  const start = edgeEndpoint(source, edge, "exit", firstToward);
+  const end = edgeEndpoint(target, edge, "entry", lastToward);
+
+  if (waypoints.length) {
+    return orthogonalize(compactPoints([start, ...waypoints, end]));
+  }
+
+  return compactPoints(makeOrthogonalRoute(start, end));
+}
+
+function roundedPolyline(points, radius = 18) {
+  const route = compactPoints(points);
+
+  if (route.length < 2) return "";
+  if (route.length === 2) return `M ${route[0].x} ${route[0].y} L ${route[1].x} ${route[1].y}`;
+
+  const commands = [`M ${route[0].x} ${route[0].y}`];
+
+  for (let index = 1; index < route.length - 1; index += 1) {
+    const previous = route[index - 1];
+    const current = route[index];
+    const next = route[index + 1];
+    const previousLength = Math.hypot(current.x - previous.x, current.y - previous.y);
+    const nextLength = Math.hypot(next.x - current.x, next.y - current.y);
+
+    if (previousLength < 1 || nextLength < 1) continue;
+
+    const curveRadius = Math.min(radius, previousLength / 2, nextLength / 2);
+    const before = {
+      x: current.x + (previous.x - current.x) * (curveRadius / previousLength),
+      y: current.y + (previous.y - current.y) * (curveRadius / previousLength)
+    };
+    const after = {
+      x: current.x + (next.x - current.x) * (curveRadius / nextLength),
+      y: current.y + (next.y - current.y) * (curveRadius / nextLength)
+    };
+
+    commands.push(`L ${before.x} ${before.y}`);
+    commands.push(`Q ${current.x} ${current.y} ${after.x} ${after.y}`);
+  }
+
+  const last = route[route.length - 1];
+  commands.push(`L ${last.x} ${last.y}`);
+
+  return commands.join(" ");
+}
+
+function midpointOnRoute(points) {
+  const route = compactPoints(points);
+  const lengths = [];
+  let total = 0;
+
+  for (let index = 1; index < route.length; index += 1) {
+    const length = Math.hypot(route[index].x - route[index - 1].x, route[index].y - route[index - 1].y);
+    lengths.push(length);
+    total += length;
+  }
+
+  let distance = total / 2;
+
+  for (let index = 1; index < route.length; index += 1) {
+    const length = lengths[index - 1];
+    if (distance <= length) {
+      const ratio = length ? distance / length : 0;
+      return {
+        x: route[index - 1].x + (route[index].x - route[index - 1].x) * ratio,
+        y: route[index - 1].y + (route[index].y - route[index - 1].y) * ratio
+      };
+    }
+
+    distance -= length;
+  }
+
+  return route[Math.floor(route.length / 2)] || { x: 0, y: 0 };
 }
 
 function shapeElement(node) {
-  const style = node.style;
   const common = { class: "run-turn-node-shape" };
 
-  if ((style.shape || "").includes("decision")) {
+  if (isDecision(node)) {
     const cx = node.x + node.width / 2;
     const cy = node.y + node.height / 2;
     return svgElement("path", {
@@ -101,7 +287,7 @@ function shapeElement(node) {
     });
   }
 
-  if ((style.shape || "").includes("terminator")) {
+  if (isTerminator(node)) {
     return svgElement("rect", {
       ...common,
       x: node.x,
@@ -119,17 +305,17 @@ function shapeElement(node) {
     y: node.y,
     width: node.width,
     height: node.height,
-    rx: style.rounded === "1" ? 10 : 3,
-    ry: style.rounded === "1" ? 10 : 3
+    rx: node.style.rounded === "1" ? 10 : 3,
+    ry: node.style.rounded === "1" ? 10 : 3
   });
 }
 
 function renderLabel(group, node) {
   const foreignObject = svgElement("foreignObject", {
-    x: node.x + 5,
-    y: node.y + 5,
-    width: Math.max(1, node.width - 10),
-    height: Math.max(1, node.height - 10)
+    x: node.x + 7,
+    y: node.y + 6,
+    width: Math.max(1, node.width - 14),
+    height: Math.max(1, node.height - 12)
   });
   const label = document.createElementNS(XHTML_NS, "div");
   label.className = "run-turn-node-label";
@@ -156,8 +342,8 @@ function parseDiagram(xml) {
     if (cell.getAttribute("vertex") !== "1") return;
 
     if (parent !== "1") {
-      if (text) {
-        edgeLabels.set(parent, text);
+      if (text && !edgeLabels.has(parent)) {
+        edgeLabels.set(parent, { text, geometry });
       }
       return;
     }
@@ -185,12 +371,20 @@ function parseDiagram(xml) {
 
   const edges = cells
     .filter((cell) => cell.getAttribute("edge") === "1")
-    .map((cell) => ({
-      id: cell.getAttribute("id"),
-      source: cell.getAttribute("source"),
-      target: cell.getAttribute("target"),
-      label: cleanCellText(cell.getAttribute("value") || "") || edgeLabels.get(cell.getAttribute("id")) || ""
-    }))
+    .map((cell) => {
+      const label = cleanCellText(cell.getAttribute("value") || "");
+      const labelData = edgeLabels.get(cell.getAttribute("id"));
+
+      return {
+        id: cell.getAttribute("id"),
+        source: cell.getAttribute("source"),
+        target: cell.getAttribute("target"),
+        label: label || labelData?.text || "",
+        labelGeometry: labelData?.geometry || null,
+        style: parseStyle(cell.getAttribute("style") || ""),
+        geometry: getGeometry(cell) || { points: [], sourcePoint: null, targetPoint: null }
+      };
+    })
     .filter((edge) => nodeById.has(edge.source) && nodeById.has(edge.target));
 
   return { nodes, regions, edges, nodeById };
@@ -232,35 +426,38 @@ function setActiveNode(group, node) {
 
 function renderDiagram(diagram) {
   const bounds = diagramBounds([...diagram.nodes, ...diagram.regions]);
+  svg.replaceChildren();
   svg.setAttribute("viewBox", `${bounds.x} ${bounds.y} ${bounds.width} ${bounds.height}`);
+  svg.setAttribute("preserveAspectRatio", "xMidYMin meet");
 
   const defs = svgElement("defs");
   const roughen = svgElement("filter", {
     id: "roughen",
-    x: "-8%",
-    y: "-8%",
-    width: "116%",
-    height: "116%"
+    x: "-6%",
+    y: "-6%",
+    width: "112%",
+    height: "112%"
   });
   roughen.appendChild(svgElement("feTurbulence", {
     type: "fractalNoise",
-    baseFrequency: "0.018",
+    baseFrequency: "0.014",
     numOctaves: "2",
     seed: "11"
   }));
   roughen.appendChild(svgElement("feDisplacementMap", {
     in: "SourceGraphic",
-    scale: "1.8"
+    scale: "1.15"
   }));
   const marker = svgElement("marker", {
     id: "run-turn-arrow",
-    markerWidth: "10",
-    markerHeight: "10",
-    refX: "8",
-    refY: "5",
-    orient: "auto"
+    markerWidth: "12",
+    markerHeight: "12",
+    refX: "9",
+    refY: "6",
+    orient: "auto",
+    markerUnits: "strokeWidth"
   });
-  marker.appendChild(svgElement("path", { d: "M 1 1 L 9 5 L 1 9", class: "run-turn-arrow-mark" }));
+  marker.appendChild(svgElement("path", { d: "M 2 2 L 10 6 L 2 10", class: "run-turn-arrow-mark" }));
   defs.appendChild(roughen);
   defs.appendChild(marker);
   svg.appendChild(defs);
@@ -280,21 +477,25 @@ function renderDiagram(diagram) {
   });
 
   diagram.edges.forEach((edge) => {
-    const source = diagram.nodeById.get(edge.source);
-    const target = diagram.nodeById.get(edge.target);
+    const points = connectorPoints(edge, diagram);
+    const d = roundedPolyline(points);
+    const halo = svgElement("path", {
+      class: "run-turn-edge-halo",
+      d
+    });
     const path = svgElement("path", {
       class: "run-turn-edge",
-      d: connectorPath(source, target)
+      d
     });
+    edgeLayer.appendChild(halo);
     edgeLayer.appendChild(path);
 
     if (edge.label) {
-      const a = nodeCenter(source);
-      const b = nodeCenter(target);
+      const labelPosition = midpointOnRoute(points);
       const label = svgElement("text", {
         class: "run-turn-edge-label",
-        x: (a.x + b.x) / 2,
-        y: (a.y + b.y) / 2 - 8,
+        x: labelPosition.x,
+        y: labelPosition.y - 8,
         "text-anchor": "middle"
       });
       label.textContent = edge.label;
@@ -306,9 +507,9 @@ function renderDiagram(diagram) {
     const group = svgElement("g", {
       class: [
         "run-turn-node",
-        (node.style.shape || "").includes("decision") ? "is-decision" : "",
-        (node.style.shape || "").includes("terminator") ? "is-terminator" : "",
-        node.style.strokeColor ? "is-accent" : ""
+        isDecision(node) ? "is-decision" : "",
+        isTerminator(node) ? "is-terminator" : "",
+        node.text.includes("[0]") ? "is-start-node" : ""
       ].filter(Boolean).join(" "),
       tabindex: "0",
       role: "button",
