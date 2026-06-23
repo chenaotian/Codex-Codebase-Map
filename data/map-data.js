@@ -139,6 +139,7 @@
         level: "main",
         title: "app-server",
         tier: "主干",
+        docSlug: "app-server",
         x: 110,
         y: 390,
         width: 240,

@@ -45,6 +45,10 @@ KNOWN_DOCS = {
         "slug": "special-apis",
         "aliases": ["特殊接口汇总", "特殊接口"],
     },
+    "app-server": {
+        "slug": "app-server",
+        "aliases": ["app-server", "app server"],
+    },
     "rollout文件": {
         "slug": "rollout",
         "aliases": ["rollout文件", "rollout 文件"],
