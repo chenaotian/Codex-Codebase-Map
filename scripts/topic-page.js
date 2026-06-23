@@ -144,11 +144,9 @@ function appendImage(parent, doc, alt, src) {
     }
   });
 
-  const caption = element("figcaption", "", alt || doc.title);
   figure.appendChild(tapeA);
   figure.appendChild(tapeB);
   figure.appendChild(img);
-  figure.appendChild(caption);
   parent.appendChild(figure);
 }
 
@@ -161,7 +159,6 @@ function ensureImageLightbox() {
   const media = element("div", "image-lightbox-media");
   const closeButton = element("button", "image-lightbox-close", "×");
   const img = document.createElement("img");
-  const caption = element("figcaption");
   const state = {
     baseWidth: 0,
     baseHeight: 0,
@@ -186,7 +183,6 @@ function ensureImageLightbox() {
   viewport.appendChild(media);
   frame.appendChild(closeButton);
   frame.appendChild(viewport);
-  frame.appendChild(caption);
   overlay.appendChild(frame);
   document.body.appendChild(overlay);
 
@@ -231,7 +227,7 @@ function ensureImageLightbox() {
     }
   });
 
-  imageLightbox = { overlay, frame, viewport, media, img, caption, closeButton, state };
+  imageLightbox = { overlay, frame, viewport, media, img, closeButton, state };
   return imageLightbox;
 }
 
@@ -307,7 +303,6 @@ function openImageLightbox(src, alt) {
 
   lightbox.img.onload = () => resetLightboxImage(lightbox);
   lightbox.img.alt = alt;
-  lightbox.caption.textContent = alt;
   lightbox.overlay.hidden = false;
   document.body.classList.add("is-lightbox-open");
   lightbox.img.src = src;
