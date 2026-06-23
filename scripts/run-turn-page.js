@@ -380,7 +380,10 @@ function styleAnchor(node, style, prefix) {
 }
 
 function isDecision(node) {
-  return (node.style.shape || "").includes("decision");
+  const shape = node.style.shape || "";
+  return shape.includes("decision") ||
+    shape.includes("rhombus") ||
+    Object.prototype.hasOwnProperty.call(node.style, "rhombus");
 }
 
 function isTerminator(node) {
