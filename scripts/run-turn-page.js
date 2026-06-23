@@ -1,16 +1,10 @@
 const SVG_NS = "http://www.w3.org/2000/svg";
 const XHTML_NS = "http://www.w3.org/1999/xhtml";
-const DRAWIO_VIEWER_URL = "https://viewer.diagrams.net/js/viewer-static.min.js";
 const diagramData = window.CodexRunTurnDiagram;
-const canvas = document.querySelector("[data-run-turn-canvas]");
-const viewer = document.querySelector("[data-run-turn-viewer]");
-const viewerStatus = document.querySelector("[data-run-turn-viewer-status]");
-const hotspots = document.querySelector("[data-run-turn-hotspots]");
 const svg = document.querySelector("[data-run-turn-svg]");
 const detailStep = document.querySelector("[data-run-turn-step]");
 const detailTitle = document.querySelector("[data-run-turn-title]");
 const detailBody = document.querySelector("[data-run-turn-body]");
-let viewerScriptPromise = null;
 
 function svgElement(tagName, attributes = {}) {
   const node = document.createElementNS(SVG_NS, tagName);
@@ -432,190 +426,13 @@ function stepText(node) {
 }
 
 function setActiveNode(group, node) {
-  document.querySelectorAll(".run-turn-node, .run-turn-hotspot").forEach((item) => {
+  document.querySelectorAll(".run-turn-node").forEach((item) => {
     item.classList.toggle("is-active", item === group);
   });
 
   detailStep.textContent = stepText(node);
   detailTitle.textContent = node.text;
   detailBody.textContent = "详情待补充。";
-}
-
-function firstDiagramNode(diagram) {
-  return diagram.nodes.find((node) => node.text.includes("[0]")) || diagram.nodes[0];
-}
-
-function loadDrawioViewerScript() {
-  if (viewerScriptPromise) return viewerScriptPromise;
-
-  viewerScriptPromise = new Promise((resolve, reject) => {
-    const existing = document.querySelector(`script[src="${DRAWIO_VIEWER_URL}"]`);
-
-    if (existing) {
-      resolve();
-      return;
-    }
-
-    const script = document.createElement("script");
-    script.src = DRAWIO_VIEWER_URL;
-    script.async = true;
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error("diagrams.net viewer script failed to load"));
-    document.head.appendChild(script);
-  });
-
-  return viewerScriptPromise;
-}
-
-function waitForNativeSvg(timeoutMs = 7000) {
-  const startedAt = Date.now();
-
-  return new Promise((resolve, reject) => {
-    const tick = () => {
-      const nativeSvg = viewer?.querySelector(".mxgraph svg, svg");
-
-      if (nativeSvg) {
-        resolve(nativeSvg);
-        return;
-      }
-
-      if (Date.now() - startedAt > timeoutMs) {
-        reject(new Error("diagrams.net viewer did not render an SVG"));
-        return;
-      }
-
-      window.requestAnimationFrame(tick);
-    };
-
-    tick();
-  });
-}
-
-function nodeBoundsFallback(diagram) {
-  return diagramBounds([...diagram.nodes, ...diagram.regions]);
-}
-
-function svgViewBox(nativeSvg, diagram) {
-  const viewBox = nativeSvg.viewBox?.baseVal;
-
-  if (viewBox && viewBox.width > 0 && viewBox.height > 0) {
-    return {
-      x: viewBox.x,
-      y: viewBox.y,
-      width: viewBox.width,
-      height: viewBox.height
-    };
-  }
-
-  return nodeBoundsFallback(diagram);
-}
-
-function syncNativeHotspots(diagram, nativeSvg) {
-  if (!viewer || !hotspots || !nativeSvg) return;
-
-  const viewerBox = viewer.getBoundingClientRect();
-  const svgBox = nativeSvg.getBoundingClientRect();
-  const viewBox = svgViewBox(nativeSvg, diagram);
-  const scaleX = svgBox.width / viewBox.width;
-  const scaleY = svgBox.height / viewBox.height;
-  const offsetLeft = svgBox.left - viewerBox.left;
-  const offsetTop = svgBox.top - viewerBox.top;
-
-  hotspots.style.left = `${offsetLeft}px`;
-  hotspots.style.top = `${offsetTop}px`;
-  hotspots.style.width = `${svgBox.width}px`;
-  hotspots.style.height = `${svgBox.height}px`;
-  hotspots.replaceChildren();
-
-  diagram.nodes.forEach((node) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "run-turn-hotspot";
-    button.setAttribute("aria-label", node.text);
-    button.title = node.text;
-    button.style.left = `${(node.x - viewBox.x) * scaleX}px`;
-    button.style.top = `${(node.y - viewBox.y) * scaleY}px`;
-    button.style.width = `${node.width * scaleX}px`;
-    button.style.height = `${node.height * scaleY}px`;
-    button.addEventListener("click", () => setActiveNode(button, node));
-    button.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        setActiveNode(button, node);
-      }
-    });
-    hotspots.appendChild(button);
-  });
-}
-
-async function renderNativeDiagram(diagram) {
-  if (!viewer || !hotspots || !canvas) return false;
-
-  canvas.classList.remove("is-fallback", "is-viewer-ready");
-  canvas.classList.add("is-viewer-loading");
-  viewer.querySelectorAll(".mxgraph").forEach((node) => node.remove());
-  hotspots.replaceChildren();
-
-  if (viewerStatus) {
-    viewerStatus.hidden = false;
-    viewerStatus.textContent = "加载 diagrams.net 原生视图...";
-  }
-
-  const graph = document.createElement("div");
-  graph.className = "mxgraph";
-  graph.setAttribute("data-mxgraph", JSON.stringify({
-    highlight: "#315f79",
-    nav: true,
-    resize: true,
-    edit: "_blank",
-    xml: diagramData.xml
-  }));
-  viewer.insertBefore(graph, hotspots);
-
-  await loadDrawioViewerScript();
-
-  const nativeSvg = await waitForNativeSvg();
-  canvas.classList.remove("is-viewer-loading");
-  canvas.classList.add("is-viewer-ready");
-
-  if (viewerStatus) {
-    viewerStatus.hidden = true;
-  }
-
-  syncNativeHotspots(diagram, nativeSvg);
-
-  if ("ResizeObserver" in window) {
-    const observer = new ResizeObserver(() => syncNativeHotspots(diagram, nativeSvg));
-    observer.observe(nativeSvg);
-    observer.observe(viewer);
-  } else {
-    window.addEventListener("resize", () => syncNativeHotspots(diagram, nativeSvg));
-  }
-
-  const firstNode = firstDiagramNode(diagram);
-  const firstHotspot = firstNode
-    ? Array.from(hotspots.querySelectorAll(".run-turn-hotspot")).find((item) => item.title === firstNode.text)
-    : null;
-
-  if (firstNode) {
-    setActiveNode(firstHotspot, firstNode);
-  }
-
-  return true;
-}
-
-function activateFallbackDiagram(diagram, reason = "") {
-  if (canvas) {
-    canvas.classList.remove("is-viewer-loading", "is-viewer-ready");
-    canvas.classList.add("is-fallback");
-  }
-
-  if (viewerStatus) {
-    viewerStatus.hidden = false;
-    viewerStatus.textContent = reason ? "原生视图不可用，已切换到本地渲染。" : "";
-  }
-
-  renderDiagram(diagram);
 }
 
 function renderDiagram(diagram) {
@@ -727,7 +544,7 @@ function renderDiagram(diagram) {
   svg.appendChild(edgeLayer);
   svg.appendChild(nodeLayer);
 
-  const firstNode = firstDiagramNode(diagram);
+  const firstNode = diagram.nodes.find((node) => node.text.includes("[0]")) || diagram.nodes[0];
   const firstGroup = firstNode
     ? Array.from(nodeLayer.querySelectorAll(".run-turn-node")).find((item) => item.dataset.nodeId === firstNode.id)
     : null;
@@ -744,9 +561,5 @@ function renderError(message) {
 if (!diagramData?.xml) {
   renderError("未找到 run_turn.drawio。");
 } else {
-  const diagram = parseDiagram(diagramData.xml);
-  renderNativeDiagram(diagram).catch((error) => {
-    console.warn(error);
-    activateFallbackDiagram(diagram, error.message);
-  });
+  renderDiagram(parseDiagram(diagramData.xml));
 }
