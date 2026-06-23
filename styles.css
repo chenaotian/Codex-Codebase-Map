@@ -1084,6 +1084,11 @@ h3.topic-heading {
   stroke-width: 7;
 }
 
+.run-turn-edge-halo.is-decision-fanout,
+.run-turn-edge-halo.is-decision-merge {
+  stroke-width: 10;
+}
+
 .run-turn-edge {
   fill: none;
   stroke: rgba(49, 42, 34, 0.74);
@@ -1101,6 +1106,12 @@ h3.topic-heading {
 .run-turn-edge.is-absolute-route {
   stroke: rgba(180, 59, 46, 0.76);
   stroke-width: 2.7;
+}
+
+.run-turn-edge.is-decision-fanout,
+.run-turn-edge.is-decision-merge {
+  stroke: rgba(49, 42, 34, 0.68);
+  stroke-width: 2.25;
 }
 
 .run-turn-arrow-mark {

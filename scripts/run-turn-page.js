@@ -419,6 +419,24 @@ function edgeEndpoint(node, edge, prefix, toward) {
   return styleAnchor(node, edge.style, prefix) || explicit || boundaryPoint(node, toward);
 }
 
+function stepNumber(node) {
+  const match = String(node?.text || "").match(/\[(\d+)\]/);
+  return match ? Number(match[1]) : null;
+}
+
+function isProcessLike(node) {
+  return Boolean(node) && !isDecision(node) && !isTerminator(node);
+}
+
+function isNeighboringStep(source, target) {
+  const sourceStep = stepNumber(source);
+  const targetStep = stepNumber(target);
+
+  if (sourceStep === null || targetStep === null) return true;
+
+  return Math.abs(targetStep - sourceStep) <= 1;
+}
+
 function nodeType(node) {
   if (isTerminator(node)) return "terminator";
   if (isDecision(node)) return "decision";
@@ -552,6 +570,92 @@ function orthogonalize(points) {
   return compactPoints(routed);
 }
 
+function edgeRouteKind(edge, diagram) {
+  const source = edge.source ? diagram.nodeById.get(edge.source) : null;
+  const target = edge.target ? diagram.nodeById.get(edge.target) : null;
+
+  if (!source || !target || edge.geometry.points?.length) return "";
+
+  const sourceCenter = nodeCenter(source);
+  const targetCenter = nodeCenter(target);
+  const verticalGap = target.y - (source.y + source.height);
+  const horizontalGap = Math.abs(targetCenter.x - sourceCenter.x);
+
+  if (
+    isDecision(source) &&
+    isProcessLike(target) &&
+    isNeighboringStep(source, target) &&
+    verticalGap > 18 &&
+    horizontalGap > 74
+  ) {
+    return "decision-fanout";
+  }
+
+  if (
+    isProcessLike(source) &&
+    isDecision(target) &&
+    isNeighboringStep(source, target) &&
+    verticalGap > 34 &&
+    horizontalGap > 62
+  ) {
+    return "decision-merge";
+  }
+
+  return "";
+}
+
+function routeDecisionFanout(edge, source, target) {
+  const sourceCenter = nodeCenter(source);
+  const targetCenter = nodeCenter(target);
+  const side = targetCenter.x < sourceCenter.x ? -1 : 1;
+  const start = edgeEndpoint(source, edge, "exit", { x: targetCenter.x, y: target.y });
+  const end = edgeEndpoint(target, edge, "entry", sourceCenter);
+  const outX = start.x + side * clamp(Math.abs(targetCenter.x - sourceCenter.x) * 0.18, 34, 56);
+  const approachY = clamp(end.y - 26, start.y + 30, end.y - 12);
+
+  return compactPoints([
+    start,
+    { x: outX, y: start.y },
+    { x: outX, y: approachY },
+    { x: end.x, y: approachY },
+    end
+  ]);
+}
+
+function decisionUpperShoulder(node, side) {
+  const center = nodeCenter(node);
+
+  return {
+    x: center.x + side * node.width * 0.24,
+    y: node.y + node.height * 0.26
+  };
+}
+
+function routeDecisionMerge(edge, source, target) {
+  const sourceCenter = nodeCenter(source);
+  const targetCenter = nodeCenter(target);
+  const side = sourceCenter.x < targetCenter.x ? -1 : 1;
+  const hasCustomStart = Boolean(edge.geometry.sourcePoint || styleAnchor(source, edge.style, "exit"));
+  const start = hasCustomStart
+    ? edgeEndpoint(source, edge, "exit", targetCenter)
+    : { x: sourceCenter.x, y: source.y + source.height };
+  const end = styleAnchor(target, edge.style, "entry") ||
+    edge.geometry.targetPoint ||
+    decisionUpperShoulder(target, side);
+  const laneY = clamp(
+    start.y + Math.max(42, (end.y - start.y) * 0.55),
+    start.y + 34,
+    target.y - 28
+  );
+
+  return compactPoints([
+    start,
+    { x: start.x, y: laneY },
+    { x: end.x, y: laneY },
+    end
+  ]);
+}
+
 function connectorPoints(edge, diagram) {
   const source = edge.source ? diagram.nodeById.get(edge.source) : null;
   const target = edge.target ? diagram.nodeById.get(edge.target) : null;
@@ -565,6 +669,15 @@ function connectorPoints(edge, diagram) {
 
   if (waypoints.length) {
     return orthogonalize(compactPoints([start, ...waypoints, end]));
+  }
+
+  const routeKind = edgeRouteKind(edge, diagram);
+  if (routeKind === "decision-fanout") {
+    return routeDecisionFanout(edge, source, target);
+  }
+
+  if (routeKind === "decision-merge") {
+    return routeDecisionMerge(edge, source, target);
   }
 
   return compactPoints(makeOrthogonalRoute(start, end));
@@ -959,6 +1072,7 @@ function renderDiagram(diagram) {
   });
 
   diagram.edges.forEach((edge) => {
+    const routeKind = edgeRouteKind(edge, diagram);
     const rawPoints = connectorPoints(edge, diagram);
     const points = trimRoute(
       rawPoints,
@@ -972,7 +1086,8 @@ function renderDiagram(diagram) {
       class: [
         "run-turn-edge-halo",
         isShortBridge ? "is-short-bridge" : "",
-        isAbsoluteRoute ? "is-absolute-route" : ""
+        isAbsoluteRoute ? "is-absolute-route" : "",
+        routeKind ? `is-${routeKind}` : ""
       ].filter(Boolean).join(" "),
       d
     });
@@ -980,7 +1095,8 @@ function renderDiagram(diagram) {
       class: [
         "run-turn-edge",
         isShortBridge ? "is-short-bridge" : "",
-        isAbsoluteRoute ? "is-absolute-route" : ""
+        isAbsoluteRoute ? "is-absolute-route" : "",
+        routeKind ? `is-${routeKind}` : ""
       ].filter(Boolean).join(" "),
       d
     });
