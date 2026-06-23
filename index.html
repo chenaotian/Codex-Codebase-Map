@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Codex 源码知识地图</title>
+    <link rel="stylesheet" href="styles.css?v=20260623-strongred" />
+  </head>
+  <body>
+    <main class="page-shell" aria-label="Codex 源码分析博客主页">
+      <section class="map-board" aria-labelledby="page-title">
+        <div class="tape tape-a" aria-hidden="true"></div>
+        <div class="tape tape-b" aria-hidden="true"></div>
+
+        <header class="map-heading">
+          <p class="kicker">Codex Source Study</p>
+          <h1 id="page-title">Codex 源码知识地图</h1>
+          <p class="subtitle">从 turn 循环出发，把执行、工具、上下文、记忆与安全串成一张汇报地图。</p>
+        </header>
+
+        <div class="legend" aria-label="地图层级">
+          <span><i class="legend-core"></i>核心</span>
+          <span><i class="legend-main"></i>主干</span>
+          <span><i class="legend-leaf"></i>支线</span>
+        </div>
+
+        <div class="map-scroll" aria-label="知识地图画布">
+          <svg
+            class="knowledge-map"
+            viewBox="0 0 2260 1040"
+            role="img"
+            aria-labelledby="map-title map-desc"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <title id="map-title">Codex 源码知识地图</title>
+            <desc id="map-desc">
+              知识地图以 turn 和 run_turn 为核心，主干连接 app-server、tool call、MCP 与 skill、安全、记忆系统、上下文压缩和 rollout 文件，支线展示各主题的子模块。
+            </desc>
+            <defs>
+              <filter id="roughen" x="-8%" y="-8%" width="116%" height="116%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="2" seed="7" />
+                <feDisplacementMap in="SourceGraphic" scale="2.4" />
+              </filter>
+              <filter id="soft-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#544632" flood-opacity="0.13" />
+              </filter>
+              <marker id="arrow-main" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+                <path d="M 1 1 L 9 5 L 1 9" class="arrow-mark" />
+              </marker>
+            </defs>
+
+            <g class="background-ink" data-map-background aria-hidden="true"></g>
+            <g class="connectors" data-map-connectors aria-hidden="true"></g>
+            <g class="nodes" data-map-nodes></g>
+            <g class="connectors front-connectors" data-map-front-connectors aria-hidden="true"></g>
+          </svg>
+        </div>
+
+        <aside class="node-note" aria-live="polite">
+          <p class="note-tier">核心</p>
+          <h2>turn &amp; run_turn</h2>
+          <p>整张图的中枢。这里串起一次用户输入进入模型、工具执行、事件回流和最终答复的主循环。</p>
+        </aside>
+      </section>
+    </main>
+
+    <script src="data/docs-content.js?v=20260623-context-compaction"></script>
+    <script src="data/map-data.js?v=20260623-context-compaction"></script>
+    <script src="scripts/app.js?v=20260623-threadsession"></script>
+  </body>
+</html>
