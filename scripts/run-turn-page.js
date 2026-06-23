@@ -390,6 +390,10 @@ function isTerminator(node) {
   return (node.style.shape || "").includes("terminator");
 }
 
+function isImportantNode(node) {
+  return node.text.includes("⭐");
+}
+
 function boundaryPoint(node, toward) {
   const center = nodeCenter(node);
   const dx = toward.x - center.x;
@@ -826,38 +830,59 @@ function labelPosition(edge, points) {
   };
 }
 
-function shapeElement(node) {
-  const common = { class: "run-turn-node-shape" };
+function shapeElement(node, className = "run-turn-node-shape", padding = 0) {
+  const common = { class: className };
+  const x = node.x - padding;
+  const y = node.y - padding;
+  const width = node.width + padding * 2;
+  const height = node.height + padding * 2;
 
   if (isDecision(node)) {
-    const cx = node.x + node.width / 2;
-    const cy = node.y + node.height / 2;
+    const cx = x + width / 2;
+    const cy = y + height / 2;
     return svgElement("path", {
       ...common,
-      d: `M ${cx} ${node.y} L ${node.x + node.width} ${cy} L ${cx} ${node.y + node.height} L ${node.x} ${cy} Z`
+      d: `M ${cx} ${y} L ${x + width} ${cy} L ${cx} ${y + height} L ${x} ${cy} Z`
     });
   }
 
   if (isTerminator(node)) {
     return svgElement("rect", {
       ...common,
-      x: node.x,
-      y: node.y,
-      width: node.width,
-      height: node.height,
-      rx: node.height / 2,
-      ry: node.height / 2
+      x,
+      y,
+      width,
+      height,
+      rx: height / 2,
+      ry: height / 2
     });
   }
 
   return svgElement("rect", {
     ...common,
-    x: node.x,
-    y: node.y,
-    width: node.width,
-    height: node.height,
+    x,
+    y,
+    width,
+    height,
     rx: node.style.rounded === "1" ? 10 : 3,
     ry: node.style.rounded === "1" ? 10 : 3
+  });
+}
+
+function importantMarkerElement(node) {
+  const cx = node.x + node.width - 10;
+  const cy = node.y - 5;
+  const points = [];
+
+  for (let index = 0; index < 10; index += 1) {
+    const radius = index % 2 === 0 ? 13 : 5.5;
+    const angle = -Math.PI / 2 + index * Math.PI / 5;
+    points.push(`${cx + Math.cos(angle) * radius},${cy + Math.sin(angle) * radius}`);
+  }
+
+  return svgElement("polygon", {
+    class: "run-turn-important-marker",
+    points: points.join(" ")
   });
 }
 
@@ -1121,6 +1146,7 @@ function renderDiagram(diagram) {
         "run-turn-node",
         isDecision(node) ? "is-decision" : "",
         isTerminator(node) ? "is-terminator" : "",
+        isImportantNode(node) ? "is-important-node" : "",
         node.text.includes("[0]") ? "is-start-node" : ""
       ].filter(Boolean).join(" "),
       tabindex: "0",
@@ -1128,6 +1154,10 @@ function renderDiagram(diagram) {
       "aria-label": node.text,
       "data-node-id": node.id
     });
+    if (isImportantNode(node)) {
+      group.appendChild(shapeElement(node, "run-turn-node-highlight", 9));
+      group.appendChild(importantMarkerElement(node));
+    }
     group.appendChild(shapeElement(node));
     renderLabel(group, node);
     group.addEventListener("click", () => setActiveNode(group, node));

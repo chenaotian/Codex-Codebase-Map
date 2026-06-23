@@ -1153,6 +1153,25 @@ h3.topic-heading {
   filter: url("#roughen");
 }
 
+.run-turn-node-highlight {
+  fill: rgba(247, 208, 72, 0.22);
+  stroke: rgba(180, 59, 46, 0.72);
+  stroke-width: 4.5;
+  stroke-dasharray: 14 8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: url("#roughen");
+  pointer-events: none;
+}
+
+.run-turn-important-marker {
+  fill: rgba(247, 208, 72, 0.88);
+  stroke: rgba(180, 59, 46, 0.82);
+  stroke-width: 2.2;
+  filter: url("#roughen");
+  pointer-events: none;
+}
+
 .run-turn-node.is-start-node .run-turn-node-shape {
   fill: var(--core-wash);
   stroke-width: 3;
@@ -1167,6 +1186,12 @@ h3.topic-heading {
   fill: var(--core-wash);
   stroke: var(--core);
   stroke-width: 3.2;
+}
+
+.run-turn-node.is-important-node .run-turn-node-shape {
+  fill: #fff7c9;
+  stroke: rgba(180, 59, 46, 0.88);
+  stroke-width: 3.25;
 }
 
 .run-turn-node.is-active .run-turn-node-shape,
