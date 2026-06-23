@@ -65,6 +65,10 @@ KNOWN_DOCS = {
         "slug": "thread-session",
         "aliases": ["thread & session", "thread session"],
     },
+    "turn & run_turn": {
+        "slug": "run-turn",
+        "aliases": ["turn & run_turn", "turn run_turn", "run_turn", "turn"],
+    },
     "submission_loop": {
         "slug": "submission-loop",
         "aliases": ["submission_loop", "submission loop"],

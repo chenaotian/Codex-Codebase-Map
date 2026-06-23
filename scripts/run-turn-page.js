@@ -1,10 +1,21 @@
 const SVG_NS = "http://www.w3.org/2000/svg";
 const XHTML_NS = "http://www.w3.org/1999/xhtml";
 const diagramData = window.CodexRunTurnDiagram;
+const docsContent = window.CodexDocsContent;
 const svg = document.querySelector("[data-run-turn-svg]");
 const detailStep = document.querySelector("[data-run-turn-step]");
 const detailTitle = document.querySelector("[data-run-turn-title]");
 const detailBody = document.querySelector("[data-run-turn-body]");
+const DETAIL_JUMP_ALIASES = {
+  "压缩上下文": "context-compaction",
+  "上下文压缩": "context-compaction",
+  "MCP & skill": "mcp-skill",
+  "MCP和skill": "mcp-skill",
+  "hook": "hooks",
+  "hook点": "hooks",
+  "pending_input": "pending-input",
+  "tool call": "tool-call"
+};
 
 function svgElement(tagName, attributes = {}) {
   const node = document.createElementNS(SVG_NS, tagName);
@@ -34,6 +45,265 @@ function cleanCellText(value = "") {
   holder.innerHTML = value;
   return holder.textContent.replace(/\s+/g, " ").trim();
 }
+
+function htmlElement(tagName, className = "", text = "") {
+  const node = document.createElement(tagName);
+
+  if (className) {
+    node.className = className;
+  }
+
+  if (text) {
+    node.textContent = text;
+  }
+
+  return node;
+}
+
+function normalizeLookup(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/\s+/g, "")
+    .replace(/_/g, "-")
+    .replace(/[：:，,。.、]/g, "");
+}
+
+function findDoc(value) {
+  const docs = docsContent?.docs || [];
+  const normalized = normalizeLookup(value);
+
+  return docs.find((doc) => normalizeLookup(doc.slug) === normalized) ||
+    docs.find((doc) => normalizeLookup(doc.title) === normalized) ||
+    docs.find((doc) => normalizeLookup(doc.fileTitle) === normalized) ||
+    docs.find((doc) => (doc.aliases || []).some((alias) => normalizeLookup(alias) === normalized));
+}
+
+function findRunTurnDoc() {
+  return findDoc("run-turn") || findDoc("turn & run_turn") || findDoc("run_turn");
+}
+
+function findJumpDoc(label) {
+  const direct = findDoc(label);
+  if (direct) return direct;
+
+  const aliasSlug = DETAIL_JUMP_ALIASES[label] || DETAIL_JUMP_ALIASES[normalizeLookup(label)];
+  return aliasSlug ? findDoc(aliasSlug) : null;
+}
+
+function renderInlineMarkdown(text) {
+  const fragment = document.createDocumentFragment();
+  const tokens = String(text).split(/(`[^`]+`|\*\*[^*]+\*\*)/g);
+
+  tokens.forEach((token) => {
+    if (!token) return;
+
+    if (token.startsWith("`") && token.endsWith("`")) {
+      fragment.appendChild(htmlElement("code", "inline-code", token.slice(1, -1)));
+      return;
+    }
+
+    if (token.startsWith("**") && token.endsWith("**")) {
+      fragment.appendChild(htmlElement("strong", "", token.slice(2, -2)));
+      return;
+    }
+
+    fragment.appendChild(document.createTextNode(token));
+  });
+
+  return fragment;
+}
+
+function appendDetailParagraph(parent, lines) {
+  if (!lines.length) return;
+
+  const paragraph = htmlElement("p", "run-turn-detail-paragraph");
+  paragraph.appendChild(renderInlineMarkdown(lines.join(" ").trim()));
+  parent.appendChild(paragraph);
+}
+
+function appendDetailCode(parent, codeLines, language = "") {
+  const pre = htmlElement("pre", `run-turn-detail-code language-${language || "text"}`);
+  pre.appendChild(htmlElement("code", "", codeLines.join("\n")));
+  parent.appendChild(pre);
+}
+
+function appendDetailList(parent, items, ordered) {
+  if (!items.length) return;
+
+  const list = htmlElement(ordered ? "ol" : "ul", "run-turn-detail-list");
+
+  items.forEach((item) => {
+    const li = htmlElement("li");
+    li.appendChild(renderInlineMarkdown(item.text));
+    if (item.indent) {
+      li.style.marginLeft = `${Math.min(item.indent * 14, 42)}px`;
+    }
+    list.appendChild(li);
+  });
+
+  parent.appendChild(list);
+}
+
+function appendDetailJump(parent, label) {
+  const doc = findJumpDoc(label);
+  const link = htmlElement("a", "run-turn-detail-link", `详情跳转：${label}`);
+  link.href = doc ? `topic.html?doc=${encodeURIComponent(doc.slug)}` : "#";
+
+  if (!doc) {
+    link.classList.add("is-missing");
+    link.setAttribute("aria-disabled", "true");
+    link.addEventListener("click", (event) => event.preventDefault());
+  }
+
+  parent.appendChild(link);
+}
+
+function renderDetailMarkdown(markdown, parent) {
+  const lines = String(markdown || "").split(/\r?\n/);
+  let paragraph = [];
+  let listItems = [];
+  let listOrdered = false;
+  let codeLines = [];
+  let codeLanguage = "";
+  let inCode = false;
+
+  function flushParagraph() {
+    appendDetailParagraph(parent, paragraph);
+    paragraph = [];
+  }
+
+  function flushList() {
+    appendDetailList(parent, listItems, listOrdered);
+    listItems = [];
+  }
+
+  lines.forEach((line) => {
+    const trimmed = line.trim();
+
+    if (trimmed.startsWith("```")) {
+      if (inCode) {
+        appendDetailCode(parent, codeLines, codeLanguage);
+        codeLines = [];
+        codeLanguage = "";
+        inCode = false;
+        return;
+      }
+
+      flushParagraph();
+      flushList();
+      inCode = true;
+      codeLanguage = trimmed.slice(3).trim();
+      return;
+    }
+
+    if (inCode) {
+      codeLines.push(line);
+      return;
+    }
+
+    const jump = trimmed.match(/^\[详情跳转(?:到)?(.+?)\]$/);
+    if (jump) {
+      flushParagraph();
+      flushList();
+      appendDetailJump(parent, jump[1].trim());
+      return;
+    }
+
+    const heading = line.match(/^\s{0,3}(#{1,6})\s+(.+?)\s*$/);
+    if (heading) {
+      flushParagraph();
+      flushList();
+      const level = heading[1].length;
+      const node = htmlElement(level >= 5 ? "h4" : "h3", "run-turn-detail-heading", heading[2].trim());
+      parent.appendChild(node);
+      return;
+    }
+
+    const unordered = line.match(/^(\s*)[-*]\s+(.+)$/);
+    const ordered = line.match(/^(\s*)(\d+)\.\s+(.+)$/);
+    if (unordered || ordered) {
+      flushParagraph();
+      const match = unordered || ordered;
+      const isOrdered = Boolean(ordered);
+
+      if (listItems.length && listOrdered !== isOrdered) {
+        flushList();
+      }
+
+      listOrdered = isOrdered;
+      listItems.push({
+        indent: Math.floor((match[1] || "").length / 2),
+        text: (ordered ? match[3] : match[2]).trim()
+      });
+      return;
+    }
+
+    if (!trimmed) {
+      flushParagraph();
+      flushList();
+      return;
+    }
+
+    flushList();
+    paragraph.push(trimmed);
+  });
+
+  if (inCode) {
+    appendDetailCode(parent, codeLines, codeLanguage);
+  }
+  flushParagraph();
+  flushList();
+}
+
+function parseRunTurnDetails() {
+  const doc = findRunTurnDoc();
+  const sections = new Map();
+
+  if (!doc?.markdown) return sections;
+
+  const lines = doc.markdown.replace(/^\uFEFF/, "").split(/\r?\n/);
+  let active = null;
+  let inCode = false;
+
+  function storeActive() {
+    if (active) {
+      sections.set(active.number, active);
+    }
+  }
+
+  lines.forEach((line) => {
+    const trimmed = line.trim();
+
+    if (trimmed.startsWith("```")) {
+      if (active) {
+        active.lines.push(line);
+      }
+      inCode = !inCode;
+      return;
+    }
+
+    const heading = !inCode ? line.match(/^\s{0,3}(#{1,6})\s+\[(\d+)\]\s*(.+?)\s*$/) : null;
+    if (heading) {
+      storeActive();
+      active = {
+        number: heading[2],
+        title: heading[3].trim(),
+        level: heading[1].length,
+        lines: []
+      };
+      return;
+    }
+
+    if (active) {
+      active.lines.push(line);
+    }
+  });
+
+  storeActive();
+  return sections;
+}
+
+const runTurnDetails = parseRunTurnDetails();
 
 function numberOrZero(value) {
   const parsed = Number(value || 0);
@@ -147,6 +417,93 @@ function edgeEndpoint(node, edge, prefix, toward) {
   if (!node) return explicit || toward || { x: 0, y: 0 };
 
   return styleAnchor(node, edge.style, prefix) || explicit || boundaryPoint(node, toward);
+}
+
+function nodeType(node) {
+  if (isTerminator(node)) return "terminator";
+  if (isDecision(node)) return "decision";
+  if (node.width >= 360) return "process-wide";
+  if (node.width >= 220) return "process-mid";
+  return "process-small";
+}
+
+function textWeight(text) {
+  return Array.from(String(text || "")).reduce((total, char) => {
+    if (/[\u4e00-\u9fff]/.test(char)) return total + 15;
+    if (/[A-Z]/.test(char)) return total + 8.8;
+    if (/[a-z0-9_/-]/.test(char)) return total + 7.6;
+    if (/\s/.test(char)) return total + 4.6;
+    return total + 6.5;
+  }, 0);
+}
+
+function layoutRulesForType(type) {
+  if (type === "decision") {
+    return { minWidth: 116, maxWidth: 210, minHeight: 92, paddingX: 36, paddingY: 30, lineHeight: 20 };
+  }
+
+  if (type === "terminator") {
+    return { minWidth: 108, maxWidth: 170, minHeight: 58, paddingX: 30, paddingY: 18, lineHeight: 20 };
+  }
+
+  if (type === "process-wide") {
+    return { minWidth: 360, maxWidth: 470, minHeight: 58, paddingX: 34, paddingY: 20, lineHeight: 20 };
+  }
+
+  if (type === "process-mid") {
+    return { minWidth: 240, maxWidth: 340, minHeight: 58, paddingX: 32, paddingY: 20, lineHeight: 20 };
+  }
+
+  return { minWidth: 150, maxWidth: 230, minHeight: 58, paddingX: 28, paddingY: 18, lineHeight: 20 };
+}
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function estimatedWidth(node, rules) {
+  const weighted = textWeight(node.text) + rules.paddingX;
+  return clamp(Math.ceil(weighted / 10) * 10, rules.minWidth, rules.maxWidth);
+}
+
+function estimatedHeight(node, width, rules) {
+  const usableWidth = Math.max(1, width - rules.paddingX);
+  const lines = Math.max(1, Math.ceil(textWeight(node.text) / usableWidth));
+  return Math.max(rules.minHeight, Math.ceil((lines * rules.lineHeight + rules.paddingY) / 2) * 2);
+}
+
+function normalizeNodeDimensions(diagram) {
+  const groups = new Map();
+
+  diagram.nodes.forEach((node) => {
+    const type = nodeType(node);
+    const rules = layoutRulesForType(type);
+    const width = estimatedWidth(node, rules);
+    const group = groups.get(type) || { type, rules, width: 0, height: 0, nodes: [] };
+    group.width = Math.max(group.width, width);
+    group.nodes.push(node);
+    groups.set(type, group);
+  });
+
+  groups.forEach((group) => {
+    group.nodes.forEach((node) => {
+      group.height = Math.max(group.height, estimatedHeight(node, group.width, group.rules));
+    });
+
+    group.nodes.forEach((node) => {
+      const center = nodeCenter(node);
+      const nextWidth = group.width;
+      const nextHeight = group.type === "decision" || group.type === "terminator"
+        ? group.height
+        : estimatedHeight(node, nextWidth, group.rules);
+
+      node.x = center.x - nextWidth / 2;
+      node.y = center.y - nextHeight / 2;
+      node.width = nextWidth;
+      node.height = nextHeight;
+      node.layoutType = group.type;
+    });
+  });
 }
 
 function samePoint(a, b) {
@@ -479,7 +836,9 @@ function parseDiagram(xml) {
       return hasSource && hasTarget;
     });
 
-  return { nodes, regions, edges, nodeById };
+  const diagram = { nodes, regions, edges, nodeById };
+  normalizeNodeDimensions(diagram);
+  return diagram;
 }
 
 function edgeBoundsItems(edges) {
@@ -519,8 +878,12 @@ function diagramBounds(items) {
 }
 
 function stepText(node) {
-  const step = node.text.match(/^\[(\d+)\]/);
-  return step ? `Step ${step[1]}` : "run_turn node";
+  const step = stepNumber(node);
+  return step ? `Step ${step}` : "run_turn node";
+}
+
+function stepNumber(node) {
+  return node.text.match(/^\[(\d+)\]/)?.[1] || "";
 }
 
 function setActiveNode(group, node) {
@@ -528,8 +891,18 @@ function setActiveNode(group, node) {
     item.classList.toggle("is-active", item === group);
   });
 
+  const step = stepNumber(node);
+  const detail = step ? runTurnDetails.get(step) : null;
+
   detailStep.textContent = stepText(node);
-  detailTitle.textContent = node.text;
+  detailTitle.textContent = detail ? `[${step}] ${detail.title}` : node.text;
+  detailBody.replaceChildren();
+
+  if (detail) {
+    renderDetailMarkdown(detail.lines.join("\n"), detailBody);
+    return;
+  }
+
   detailBody.textContent = "详情待补充。";
 }
 
