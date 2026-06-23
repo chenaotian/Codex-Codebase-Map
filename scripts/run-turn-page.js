@@ -607,17 +607,13 @@ function edgeRouteKind(edge, diagram) {
 function routeDecisionFanout(edge, source, target) {
   const sourceCenter = nodeCenter(source);
   const targetCenter = nodeCenter(target);
-  const side = targetCenter.x < sourceCenter.x ? -1 : 1;
   const start = edgeEndpoint(source, edge, "exit", { x: targetCenter.x, y: target.y });
   const end = edgeEndpoint(target, edge, "entry", sourceCenter);
-  const outX = start.x + side * clamp(Math.abs(targetCenter.x - sourceCenter.x) * 0.18, 34, 56);
-  const approachY = clamp(end.y - 26, start.y + 30, end.y - 12);
+  const corner = { x: end.x, y: start.y };
 
   return compactPoints([
     start,
-    { x: outX, y: start.y },
-    { x: outX, y: approachY },
-    { x: end.x, y: approachY },
+    corner,
     end
   ]);
 }
