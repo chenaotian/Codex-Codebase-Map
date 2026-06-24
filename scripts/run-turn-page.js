@@ -4,6 +4,7 @@ const flowConfig = window.CodexFlowPage || {};
 const diagramData = flowConfig.diagramData || window.CodexRunTurnDiagram;
 const docsContent = window.CodexDocsContent;
 const svg = document.querySelector("[data-run-turn-svg]");
+const canvas = document.querySelector("[data-run-turn-canvas]");
 const detailStep = document.querySelector("[data-run-turn-step]");
 const detailTitle = document.querySelector("[data-run-turn-title]");
 const detailBody = document.querySelector("[data-run-turn-body]");
@@ -28,6 +29,30 @@ const DETAIL_PAGE_JUMPS = {
   },
   ...(flowConfig.detailPageJumps || {})
 };
+const viewportState = {
+  base: null,
+  current: null,
+  scale: 1,
+  minScale: 1,
+  maxScale: Number(flowConfig.maxZoom || 4),
+  initialScale: Number(flowConfig.initialZoom || 1),
+  drag: null,
+  bound: false
+};
+
+function applyFlowStyleConfig() {
+  if (flowConfig.nodeFontSize) {
+    svg.style.setProperty("--flow-node-font-size", `${flowConfig.nodeFontSize}px`);
+  }
+
+  if (flowConfig.nodeLineHeight) {
+    svg.style.setProperty("--flow-node-line-height", String(flowConfig.nodeLineHeight));
+  }
+
+  if (flowConfig.edgeLabelFontSize) {
+    svg.style.setProperty("--flow-edge-label-font-size", `${flowConfig.edgeLabelFontSize}px`);
+  }
+}
 
 function svgElement(tagName, attributes = {}) {
   const node = document.createElementNS(SVG_NS, tagName);
@@ -1150,6 +1175,128 @@ function diagramBounds(items) {
   };
 }
 
+function setDiagramViewBox(box) {
+  viewportState.current = box;
+  svg.setAttribute("viewBox", `${box.x} ${box.y} ${box.width} ${box.height}`);
+}
+
+function clampDiagramViewBox(box) {
+  const base = viewportState.base;
+  if (!base) return box;
+
+  const marginX = Math.min(180, base.width * 0.12);
+  const marginY = Math.min(220, base.height * 0.1);
+  const minX = base.x - marginX;
+  const maxX = base.x + base.width - box.width + marginX;
+  const minY = base.y - marginY;
+  const maxY = base.y + base.height - box.height + marginY;
+
+  return {
+    ...box,
+    x: box.width >= base.width ? base.x + (base.width - box.width) / 2 : clamp(box.x, minX, maxX),
+    y: box.height >= base.height ? base.y + (base.height - box.height) / 2 : clamp(box.y, minY, maxY)
+  };
+}
+
+function zoomDiagramAt(clientX, clientY, factor) {
+  const base = viewportState.base;
+  const current = viewportState.current;
+  if (!base || !current) return;
+
+  const rect = svg.getBoundingClientRect();
+  if (!rect.width || !rect.height) return;
+
+  const pointerX = clamp((clientX - rect.left) / rect.width, 0, 1);
+  const pointerY = clamp((clientY - rect.top) / rect.height, 0, 1);
+  const oldScale = viewportState.scale;
+  const nextScale = clamp(oldScale * factor, viewportState.minScale, viewportState.maxScale);
+  if (Math.abs(nextScale - oldScale) < 0.001) return;
+
+  const focusX = current.x + pointerX * current.width;
+  const focusY = current.y + pointerY * current.height;
+  const nextWidth = base.width / nextScale;
+  const nextHeight = base.height / nextScale;
+
+  viewportState.scale = nextScale;
+  setDiagramViewBox(clampDiagramViewBox({
+    x: focusX - pointerX * nextWidth,
+    y: focusY - pointerY * nextHeight,
+    width: nextWidth,
+    height: nextHeight
+  }));
+}
+
+function panDiagramBy(deltaX, deltaY) {
+  const current = viewportState.current;
+  if (!current) return;
+
+  const rect = svg.getBoundingClientRect();
+  if (!rect.width || !rect.height) return;
+
+  setDiagramViewBox(clampDiagramViewBox({
+    ...current,
+    x: viewportState.drag.startBox.x - deltaX * current.width / rect.width,
+    y: viewportState.drag.startBox.y - deltaY * current.height / rect.height
+  }));
+}
+
+function resetDiagramViewport(bounds) {
+  viewportState.base = bounds;
+  viewportState.scale = clamp(viewportState.initialScale || 1, viewportState.minScale, viewportState.maxScale);
+
+  const width = bounds.width / viewportState.scale;
+  const height = bounds.height / viewportState.scale;
+  const focusX = clamp(Number(flowConfig.initialFocusX ?? 0.18), 0, 1);
+  const focusY = clamp(Number(flowConfig.initialFocusY ?? 0), 0, 1);
+
+  setDiagramViewBox(clampDiagramViewBox({
+    x: bounds.x + (bounds.width - width) * focusX,
+    y: bounds.y + (bounds.height - height) * focusY,
+    width,
+    height
+  }));
+}
+
+function bindDiagramViewport() {
+  if (viewportState.bound || !canvas || !svg) return;
+  viewportState.bound = true;
+  canvas.classList.add("is-zoomable");
+
+  svg.addEventListener("wheel", (event) => {
+    event.preventDefault();
+    zoomDiagramAt(event.clientX, event.clientY, event.deltaY < 0 ? 1.14 : 0.88);
+  }, { passive: false });
+
+  svg.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0 || event.target.closest?.(".run-turn-node")) return;
+
+    viewportState.drag = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      startBox: { ...viewportState.current }
+    };
+    canvas.classList.add("is-panning");
+    svg.setPointerCapture?.(event.pointerId);
+  });
+
+  svg.addEventListener("pointermove", (event) => {
+    if (!viewportState.drag || viewportState.drag.pointerId !== event.pointerId) return;
+    event.preventDefault();
+    panDiagramBy(event.clientX - viewportState.drag.startX, event.clientY - viewportState.drag.startY);
+  });
+
+  function endDrag(event) {
+    if (!viewportState.drag || viewportState.drag.pointerId !== event.pointerId) return;
+    viewportState.drag = null;
+    canvas.classList.remove("is-panning");
+    svg.releasePointerCapture?.(event.pointerId);
+  }
+
+  svg.addEventListener("pointerup", endDrag);
+  svg.addEventListener("pointercancel", endDrag);
+}
+
 function stepText(node) {
   const step = stepNumber(node);
   return step ? `Step ${step}` : nodeLabel;
@@ -1182,7 +1329,9 @@ function setActiveNode(group, node) {
 function renderDiagram(diagram) {
   const bounds = diagramBounds([...diagram.nodes, ...diagram.regions, ...edgeBoundsItems(diagram.edges)]);
   svg.replaceChildren();
-  svg.setAttribute("viewBox", `${bounds.x} ${bounds.y} ${bounds.width} ${bounds.height}`);
+  applyFlowStyleConfig();
+  resetDiagramViewport(bounds);
+  bindDiagramViewport();
   svg.setAttribute("preserveAspectRatio", "xMidYMin meet");
 
   const defs = svgElement("defs");

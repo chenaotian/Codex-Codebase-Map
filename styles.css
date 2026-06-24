@@ -1031,6 +1031,18 @@ h3.topic-heading {
     0 18px 36px rgba(61, 50, 33, 0.1);
 }
 
+.run-turn-canvas.is-zoomable {
+  cursor: grab;
+}
+
+.run-turn-canvas.is-panning {
+  cursor: grabbing;
+}
+
+.run-turn-canvas.is-panning .run-turn-svg {
+  cursor: grabbing;
+}
+
 .run-turn-canvas::before {
   content: "";
   position: sticky;
@@ -1127,7 +1139,7 @@ h3.topic-heading {
   stroke: rgba(255, 253, 247, 0.92);
   stroke-width: 6px;
   paint-order: stroke fill;
-  font-size: 16px;
+  font-size: var(--flow-edge-label-font-size, 16px);
   font-weight: 900;
   pointer-events: none;
 }
@@ -1210,9 +1222,9 @@ h3.topic-heading {
   padding: 6px 10px;
   color: #11100c;
   font-family: var(--hand-font);
-  font-size: 15px;
+  font-size: var(--flow-node-font-size, 15px);
   font-weight: 800;
-  line-height: 1.22;
+  line-height: var(--flow-node-line-height, 1.22);
   text-align: center;
   overflow-wrap: anywhere;
 }
