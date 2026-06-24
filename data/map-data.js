@@ -375,14 +375,14 @@
       {
         id: "sandbox",
         level: "leaf",
-        title: "沙箱",
+        title: "权限与沙箱",
         tier: "支线",
         x: 1640,
         y: 830,
         width: 170,
         height: 78,
-        labelLines: ["沙箱"],
-        note: "沙箱说明文件系统、网络和命令执行边界如何限制实际行为。"
+        labelLines: ["权限与沙箱"],
+        note: "权限与沙箱说明文件系统、网络和命令执行边界如何限制实际行为。"
       }
     ]
   };
