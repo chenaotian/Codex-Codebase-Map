@@ -288,6 +288,8 @@
         level: "main",
         title: "安全",
         tier: "主干",
+        docSlug: "安全",
+        childDocSlugs: ["审批", "权限与沙箱"],
         x: 1340,
         y: 650,
         width: 210,
