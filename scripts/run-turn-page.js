@@ -815,7 +815,8 @@ function routeEventFanout(edge, source, target, diagram) {
   const count = Math.max(1, targets.length);
   const targetLeft = Math.min(...targets.map((item) => item.x), target.x);
   const laneGap = 6;
-  const laneEnd = Math.min(targetLeft - 24, source.x + source.width - 36);
+  const targetGap = Number(flowConfig.eventFanoutTargetGap || 24);
+  const laneEnd = Math.min(targetLeft - targetGap, source.x + source.width - 36);
   const laneStart = Math.max(source.x + 32, laneEnd - laneGap * (count - 1));
   const startX = count === 1 ? laneEnd : laneStart + laneGap * index;
   const start = {
