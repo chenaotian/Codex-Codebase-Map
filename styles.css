@@ -1060,8 +1060,8 @@ h3.topic-heading {
 }
 
 .run-turn-region {
-  fill: rgba(242, 201, 182, 0.055);
-  stroke: rgba(180, 59, 46, 0.42);
+  fill: var(--region-fill, rgba(242, 201, 182, 0.055));
+  stroke: var(--region-stroke, rgba(180, 59, 46, 0.42));
   stroke-width: 2;
   stroke-dasharray: 12 12;
   pointer-events: none;

@@ -52,6 +52,38 @@ function parseStyle(styleText = "") {
   );
 }
 
+const REGION_COLOR_PALETTE = [
+  { fill: "#fad7ac", stroke: "#b46504" },
+  { fill: "#fad9d5", stroke: "#ae4132" },
+  { fill: "#d0cee2", stroke: "#56517e" },
+  { fill: "#d7e8d3", stroke: "#4f7d64" }
+];
+
+function colorWithAlpha(color, alpha) {
+  const value = String(color || "").trim();
+  if (!value || value.toLowerCase() === "none") return "transparent";
+
+  const hex = value.match(/^#?([0-9a-f]{6})$/i);
+  if (!hex) return value;
+
+  const raw = hex[1];
+  const r = parseInt(raw.slice(0, 2), 16);
+  const g = parseInt(raw.slice(2, 4), 16);
+  const b = parseInt(raw.slice(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function regionColorStyle(region, index) {
+  const fallback = REGION_COLOR_PALETTE[index % REGION_COLOR_PALETTE.length];
+  const fill = region.style.fillColor || fallback.fill;
+  const stroke = region.style.strokeColor || fallback.stroke;
+
+  return [
+    `--region-fill: ${colorWithAlpha(fill, 0.18)}`,
+    `--region-stroke: ${colorWithAlpha(stroke, 0.56)}`
+  ].join("; ");
+}
+
 function cleanCellText(value = "") {
   const holder = document.createElement("div");
   holder.innerHTML = value;
@@ -1102,13 +1134,14 @@ function renderDiagram(diagram) {
   const edgeLayer = svgElement("g", { class: "run-turn-edges" });
   const nodeLayer = svgElement("g", { class: "run-turn-nodes" });
 
-  diagram.regions.forEach((region) => {
+  diagram.regions.forEach((region, index) => {
     regionLayer.appendChild(svgElement("rect", {
       class: "run-turn-region",
       x: region.x,
       y: region.y,
       width: region.width,
-      height: region.height
+      height: region.height,
+      style: regionColorStyle(region, index)
     }));
   });
 
