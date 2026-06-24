@@ -745,14 +745,9 @@ function routeEventFanout(edge, source, target, diagram) {
     x: target.x,
     y: nodeCenter(target).y
   };
-  const exitY = Math.min(start.y + 26 + index * 3, end.y - 16);
-  const railX = Math.min(source.x - 58 - index * 9, end.x - 88);
-
   return compactPoints([
     start,
-    { x: start.x, y: exitY },
-    { x: railX, y: exitY },
-    { x: railX, y: end.y },
+    { x: start.x, y: end.y },
     end
   ]);
 }
