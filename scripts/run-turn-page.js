@@ -732,21 +732,26 @@ function eventFanoutTargets(edge, diagram) {
 function routeEventFanout(edge, source, target, diagram) {
   const targets = eventFanoutTargets(edge, diagram);
   const index = Math.max(0, targets.findIndex((item) => item.id === target.id));
+  const count = Math.max(1, targets.length);
+  const span = Math.min(source.width * 0.58, Math.max(90, count * 18));
+  const startX = count === 1
+    ? nodeCenter(source).x
+    : nodeCenter(source).x - span / 2 + (span * index) / (count - 1);
   const start = {
-    x: source.x + source.width * 0.12,
-    y: source.y + source.height * clamp(0.28 + index * 0.075, 0.28, 0.86)
+    x: startX,
+    y: source.y + source.height
   };
   const end = styleAnchor(target, edge.style, "entry") || {
     x: target.x,
     y: nodeCenter(target).y
   };
-  const railX = Math.min(source.x - 54 - index * 8, end.x - 84);
-  const shoulderY = Math.min(start.y + 22 + index * 2, end.y - 16);
+  const exitY = Math.min(start.y + 26 + index * 3, end.y - 16);
+  const railX = Math.min(source.x - 58 - index * 9, end.x - 88);
 
   return compactPoints([
     start,
-    { x: railX, y: start.y },
-    { x: railX, y: shoulderY },
+    { x: start.x, y: exitY },
+    { x: railX, y: exitY },
     { x: railX, y: end.y },
     end
   ]);
