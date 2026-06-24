@@ -42,8 +42,11 @@
       </article>
     </main>
 
-    <script src="../data/docs-content.js?v=20260624-run-sampling-request"></script>
-    <script src="../data/run-turn-diagram.js?v=20260624-run-sampling-request"></script>
-    <script src="../scripts/run-turn-page.js?v=20260624-run-sampling-request"></script>
+    <script>
+      window.CodexFlowAssets = {
+        diagramScript: "../data/run-turn-diagram.js"
+      };
+    </script>
+    <script src="../scripts/flow-page-loader.js?v=20260624-live-data"></script>
   </body>
 </html>

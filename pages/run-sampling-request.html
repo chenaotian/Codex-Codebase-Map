@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>run_sampling_request | Codex 源码知识地图</title>
-    <link rel="stylesheet" href="../styles.css?v=20260624-run-sampling-request" />
+    <link rel="stylesheet" href="../styles.css?v=20260624-live-data" />
   </head>
   <body class="topic-body run-turn-body">
     <main class="topic-shell" aria-label="run_sampling_request 流程图">
@@ -42,17 +42,20 @@
       </article>
     </main>
 
-    <script src="../data/docs-content.js?v=20260624-run-sampling-request"></script>
-    <script src="../data/run-sampling-request-diagram.js?v=20260624-run-sampling-request"></script>
     <script>
-      window.CodexFlowPage = {
-        diagramData: window.CodexRunSamplingRequestDiagram,
-        detailDocQueries: ["run-sampling-request", "run_sampling_request", "run sampling request"],
-        nodeLabel: "run_sampling_request node",
-        missingDiagramMessage: "未找到 run_sampling_request.drawio。",
-        emptyDetailText: "这个节点的详情 Markdown 还没写。"
+      window.CodexFlowAssets = {
+        diagramScript: "../data/run-sampling-request-diagram.js",
+        configure() {
+          window.CodexFlowPage = {
+            diagramData: window.CodexRunSamplingRequestDiagram,
+            detailDocQueries: ["run-sampling-request", "run_sampling_request", "run sampling request"],
+            nodeLabel: "run_sampling_request node",
+            missingDiagramMessage: "未找到 run_sampling_request.drawio。",
+            emptyDetailText: "这个节点的 Markdown 详情还没写。"
+          };
+        }
       };
     </script>
-    <script src="../scripts/run-turn-page.js?v=20260624-run-sampling-request"></script>
+    <script src="../scripts/flow-page-loader.js?v=20260624-live-data"></script>
   </body>
 </html>

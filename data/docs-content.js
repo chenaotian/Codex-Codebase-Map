@@ -1,5 +1,5 @@
 window.CodexDocsContent = {
-  "generatedAt": "2026-06-24T14:27:54",
+  "generatedAt": "2026-06-24T14:32:33",
   "sourceKind": "external",
   "docs": [
     {
