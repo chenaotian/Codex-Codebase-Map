@@ -537,23 +537,22 @@ function textWeight(text) {
 }
 
 function layoutRulesForType(type) {
+  const overrides = flowConfig.layoutRules?.[type] || {};
+  let rules;
+
   if (type === "decision") {
-    return { minWidth: 116, maxWidth: 210, minHeight: 92, paddingX: 36, paddingY: 30, lineHeight: 20 };
+    rules = { minWidth: 116, maxWidth: 210, minHeight: 92, paddingX: 36, paddingY: 30, lineHeight: 20 };
+  } else if (type === "terminator") {
+    rules = { minWidth: 108, maxWidth: 170, minHeight: 58, paddingX: 30, paddingY: 18, lineHeight: 20 };
+  } else if (type === "process-wide") {
+    rules = { minWidth: 360, maxWidth: 470, minHeight: 58, paddingX: 34, paddingY: 20, lineHeight: 20 };
+  } else if (type === "process-mid") {
+    rules = { minWidth: 240, maxWidth: 340, minHeight: 58, paddingX: 32, paddingY: 20, lineHeight: 20 };
+  } else {
+    rules = { minWidth: 150, maxWidth: 230, minHeight: 58, paddingX: 28, paddingY: 18, lineHeight: 20 };
   }
 
-  if (type === "terminator") {
-    return { minWidth: 108, maxWidth: 170, minHeight: 58, paddingX: 30, paddingY: 18, lineHeight: 20 };
-  }
-
-  if (type === "process-wide") {
-    return { minWidth: 360, maxWidth: 470, minHeight: 58, paddingX: 34, paddingY: 20, lineHeight: 20 };
-  }
-
-  if (type === "process-mid") {
-    return { minWidth: 240, maxWidth: 340, minHeight: 58, paddingX: 32, paddingY: 20, lineHeight: 20 };
-  }
-
-  return { minWidth: 150, maxWidth: 230, minHeight: 58, paddingX: 28, paddingY: 18, lineHeight: 20 };
+  return { ...rules, ...overrides };
 }
 
 function clamp(value, min, max) {
@@ -601,6 +600,62 @@ function normalizeNodeDimensions(diagram) {
       node.width = nextWidth;
       node.height = nextHeight;
       node.layoutType = group.type;
+    });
+  });
+}
+
+function horizontalDiagramBounds(diagram) {
+  const values = [];
+
+  diagram.nodes.forEach((node) => {
+    values.push(node.x, node.x + node.width);
+  });
+
+  diagram.regions.forEach((region) => {
+    values.push(region.x, region.x + region.width);
+  });
+
+  diagram.edges.forEach((edge) => {
+    [
+      edge.geometry.sourcePoint,
+      edge.geometry.targetPoint,
+      ...(edge.geometry.points || [])
+    ].filter(Boolean).forEach((point) => values.push(point.x));
+  });
+
+  return {
+    minX: Math.min(...values),
+    maxX: Math.max(...values)
+  };
+}
+
+function compressDiagramHorizontally(diagram) {
+  const scale = Number(flowConfig.horizontalScale || 1);
+  if (!Number.isFinite(scale) || scale >= 0.999 || scale <= 0) return;
+
+  const bounds = horizontalDiagramBounds(diagram);
+  const anchor = (bounds.minX + bounds.maxX) / 2;
+  const compressX = (x) => anchor + (x - anchor) * scale;
+
+  diagram.nodes.forEach((node) => {
+    const centerX = node.x + node.width / 2;
+    node.x = compressX(centerX) - node.width / 2;
+  });
+
+  diagram.regions.forEach((region) => {
+    const left = compressX(region.x);
+    const right = compressX(region.x + region.width);
+    region.x = Math.min(left, right);
+    region.width = Math.max(1, Math.abs(right - left));
+  });
+
+  diagram.edges.forEach((edge) => {
+    [
+      edge.geometry.sourcePoint,
+      edge.geometry.targetPoint,
+      ...(edge.geometry.points || [])
+    ].filter(Boolean).forEach((point) => {
+      point.x = compressX(point.x);
     });
   });
 }
@@ -1136,6 +1191,7 @@ function parseDiagram(xml) {
 
   const diagram = { nodes, regions, edges, nodeById };
   normalizeNodeDimensions(diagram);
+  compressDiagramHorizontally(diagram);
   return diagram;
 }
 
@@ -1263,6 +1319,8 @@ function bindDiagramViewport() {
   canvas.classList.add("is-zoomable");
 
   svg.addEventListener("wheel", (event) => {
+    if (!event.ctrlKey && !event.metaKey) return;
+
     event.preventDefault();
     zoomDiagramAt(event.clientX, event.clientY, event.deltaY < 0 ? 1.14 : 0.88);
   }, { passive: false });
