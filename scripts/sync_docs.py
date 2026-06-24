@@ -189,8 +189,35 @@ def write_flow_diagram(config: dict, diagram_path: Path | None, source_kind: str
         "sourceFile": config["source_file"],
         "xml": read_text_with_fallback(diagram_path) if diagram_path else "",
     }
-    js = f"window.{config['window_var']} = " + json.dumps(payload, ensure_ascii=False, indent=2) + ";\n"
-    config["output_file"].write_text(js, encoding="utf-8")
+    write_window_payload(config["output_file"], config["window_var"], payload)
+
+
+def payload_without_generated_at(payload: dict) -> dict:
+    return {key: value for key, value in payload.items() if key != "generatedAt"}
+
+
+def read_window_payload(path: Path) -> dict | None:
+    if not path.exists():
+        return None
+
+    text = path.read_text(encoding="utf-8")
+    _, separator, raw_payload = text.partition("=")
+    if not separator:
+        return None
+
+    try:
+        return json.loads(raw_payload.strip().rstrip(";"))
+    except json.JSONDecodeError:
+        return None
+
+
+def write_window_payload(path: Path, window_var: str, payload: dict) -> None:
+    existing = read_window_payload(path)
+    if existing and payload_without_generated_at(existing) == payload_without_generated_at(payload):
+        return
+
+    js = f"window.{window_var} = " + json.dumps(payload, ensure_ascii=False, indent=2) + ";\n"
+    path.write_text(js, encoding="utf-8")
 
 
 def build_docs(source: Path) -> list[dict]:
@@ -252,8 +279,7 @@ def main() -> None:
         "sourceKind": source_kind,
         "docs": docs,
     }
-    js = "window.CodexDocsContent = " + json.dumps(payload, ensure_ascii=False, indent=2) + ";\n"
-    OUTPUT_FILE.write_text(js, encoding="utf-8")
+    write_window_payload(OUTPUT_FILE, "CodexDocsContent", payload)
     print(f"Synced {len(docs)} docs from {source_kind} source into {SNAPSHOT_DOCS}")
 
     for name, config in FLOW_DIAGRAMS.items():
