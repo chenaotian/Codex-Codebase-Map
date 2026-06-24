@@ -109,6 +109,8 @@ run_pending_session_start_hooks，一个hook点，可以决定是否拦截本次
 
 [跳转到run_sampling_request]
 
+![ChatGPT Image 2026年6月24日 15_28_48](D:\work\codex\final_docs\turn & run_turn.assets\ChatGPT Image 2026年6月24日 15_28_48.png)
+
 `run_sampling_request` 是 Codex 一次模型 sampling 的内层执行器。它负责为当前 turn 构建工具表、构建 prompt、调用模型流式接口、处理模型输出事件、排队并执行工具调用、把模型输出和工具结果写回会话历史、发送 UI/协议事件、处理 token/ratelimit/diff 信息，并决定外层 `run_turn` 是否需要再发起下一次模型请求。
 
 ### [13] 允许pending_input
