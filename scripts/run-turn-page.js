@@ -708,6 +708,84 @@ function routeDecisionMerge(edge, source, target) {
   ]);
 }
 
+function isEventLoopNode(node) {
+  return String(node?.text || "").includes("[7]") && String(node?.text || "").includes("match event");
+}
+
+function isEventCaseNode(node) {
+  const text = String(node?.text || "");
+  return text.startsWith("[7]") && !isEventLoopNode(node);
+}
+
+function eventFanoutTargets(edge, diagram) {
+  return diagram.edges
+    .filter((item) => {
+      const source = item.source ? diagram.nodeById.get(item.source) : null;
+      const target = item.target ? diagram.nodeById.get(item.target) : null;
+      return isEventLoopNode(source) && isEventCaseNode(target) && !item.geometry.points?.length;
+    })
+    .map((item) => diagram.nodeById.get(item.target))
+    .filter(Boolean)
+    .sort((a, b) => nodeCenter(a).y - nodeCenter(b).y);
+}
+
+function routeEventFanout(edge, source, target, diagram) {
+  const targets = eventFanoutTargets(edge, diagram);
+  const index = Math.max(0, targets.findIndex((item) => item.id === target.id));
+  const start = {
+    x: source.x + source.width * 0.12,
+    y: source.y + source.height * clamp(0.28 + index * 0.075, 0.28, 0.86)
+  };
+  const end = styleAnchor(target, edge.style, "entry") || {
+    x: target.x,
+    y: nodeCenter(target).y
+  };
+  const railX = Math.min(source.x - 54 - index * 8, end.x - 84);
+  const shoulderY = Math.min(start.y + 22 + index * 2, end.y - 16);
+
+  return compactPoints([
+    start,
+    { x: railX, y: start.y },
+    { x: railX, y: shoulderY },
+    { x: railX, y: end.y },
+    end
+  ]);
+}
+
+function isOutputItemDoneBranch(source, target) {
+  const sourceText = String(source?.text || "");
+  const targetText = String(target?.text || "");
+  return sourceText.includes("[7] OutputItemDone") &&
+    (targetText.includes("plan模式处理") || targetText.includes("工具调用"));
+}
+
+function routeOutputItemDoneBranch(edge, source, target) {
+  const targetText = String(target.text || "");
+  const sourceCenter = nodeCenter(source);
+  const targetCenter = nodeCenter(target);
+  const isPlanTarget = targetText.includes("plan模式处理");
+  const start = {
+    x: source.x + source.width,
+    y: source.y + source.height * (isPlanTarget ? 0.36 : 0.68)
+  };
+  const end = styleAnchor(target, edge.style, "entry") || {
+    x: target.x,
+    y: targetCenter.y
+  };
+  const laneX = source.x + source.width + (isPlanTarget ? 58 : 84);
+  const laneY = isPlanTarget
+    ? Math.min(sourceCenter.y - 30, targetCenter.y)
+    : Math.max(sourceCenter.y + 36, targetCenter.y);
+
+  return compactPoints([
+    start,
+    { x: laneX, y: start.y },
+    { x: laneX, y: laneY },
+    { x: end.x, y: laneY },
+    end
+  ]);
+}
+
 function connectorPoints(edge, diagram) {
   const source = edge.source ? diagram.nodeById.get(edge.source) : null;
   const target = edge.target ? diagram.nodeById.get(edge.target) : null;
@@ -718,6 +796,14 @@ function connectorPoints(edge, diagram) {
   const lastToward = waypoints[waypoints.length - 1] || fallbackStart;
   const start = edgeEndpoint(source, edge, "exit", firstToward);
   const end = edgeEndpoint(target, edge, "entry", lastToward);
+
+  if (isEventLoopNode(source) && isEventCaseNode(target) && !waypoints.length) {
+    return routeEventFanout(edge, source, target, diagram);
+  }
+
+  if (isOutputItemDoneBranch(source, target) && !waypoints.length) {
+    return routeOutputItemDoneBranch(edge, source, target);
+  }
 
   if (waypoints.length) {
     return orthogonalize(compactPoints([start, ...waypoints, end]));
