@@ -1,0 +1,215 @@
+<mxfile host="Electron">
+  <diagram name="第 1 页" id="gmW6Q1xZcrAOa_fByjGK">
+    <mxGraphModel dx="2824" dy="1716" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;strokeColor=#b46504;fillColor=#fad7ac;" value="" vertex="1">
+          <mxGeometry height="1590" width="1430" x="170" y="510" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-24" edge="1" parent="1" source="kX9hmvOGpruLOVg8XKAf-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="kX9hmvOGpruLOVg8XKAf-2" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-1" parent="1" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.terminator;whiteSpace=wrap;sketch=1;curveFitting=1;jiggle=2;" value="[0] run_sampling_request" vertex="1">
+          <mxGeometry height="60" width="180" x="360" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-25" edge="1" parent="1" source="kX9hmvOGpruLOVg8XKAf-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="kX9hmvOGpruLOVg8XKAf-3" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;sketch=1;curveFitting=1;jiggle=2;" value="&lt;span style=&quot;color: rgb(51, 51, 51); font-family: &amp;quot;Open Sans&amp;quot;, &amp;quot;Clear Sans&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, &amp;quot;Segoe UI Emoji&amp;quot;, &amp;quot;SF Pro&amp;quot;, sans-serif; font-size: 16px; orphans: 1; text-align: left; white-space: pre-wrap; background-color: rgb(255, 255, 255);&quot;&gt;[1] built_tools&lt;/span&gt;" vertex="1">
+          <mxGeometry height="60" width="429" x="235.5" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-26" edge="1" parent="1" source="kX9hmvOGpruLOVg8XKAf-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="kX9hmvOGpruLOVg8XKAf-4" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;sketch=1;curveFitting=1;jiggle=2;" value="&lt;span style=&quot;color: rgb(51, 51, 51); font-family: &amp;quot;Open Sans&amp;quot;, &amp;quot;Clear Sans&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, &amp;quot;Segoe UI Emoji&amp;quot;, &amp;quot;SF Pro&amp;quot;, sans-serif; font-size: 16px; orphans: 1; text-align: left; white-space: pre-wrap; background-color: rgb(255, 255, 255);&quot;&gt;[1] get_base_instructions&lt;/span&gt;" vertex="1">
+          <mxGeometry height="60" width="429" x="235.5" y="420" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-27" edge="1" parent="1" source="kX9hmvOGpruLOVg8XKAf-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="kX9hmvOGpruLOVg8XKAf-6" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;sketch=1;curveFitting=1;jiggle=2;" value="&lt;span style=&quot;color: rgb(51, 51, 51); font-family: &amp;quot;Open Sans&amp;quot;, &amp;quot;Clear Sans&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, &amp;quot;Segoe UI Emoji&amp;quot;, &amp;quot;SF Pro&amp;quot;, sans-serif; font-size: 16px; orphans: 1; text-align: left; white-space: pre-wrap; background-color: rgb(255, 255, 255);&quot;&gt;[1] build_prompt&lt;/span&gt;" vertex="1">
+          <mxGeometry height="60" width="429" x="235.5" y="540" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;sketch=1;curveFitting=1;jiggle=2;" value="&lt;span style=&quot;color: rgb(51, 51, 51); font-family: &amp;quot;Open Sans&amp;quot;, &amp;quot;Clear Sans&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, &amp;quot;Segoe UI Emoji&amp;quot;, &amp;quot;SF Pro&amp;quot;, sans-serif; font-size: 16px; orphans: 1; text-align: left; white-space: pre-wrap; background-color: rgb(255, 255, 255);&quot;&gt;[1] build_prompt&lt;/span&gt;" vertex="1">
+          <mxGeometry height="60" width="429" x="235.5" y="680" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-8" parent="1" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;strokeColor=#ae4132;fillColor=#fad9d5;" value="" vertex="1">
+          <mxGeometry height="1310" width="1390" x="190" y="790" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-29" edge="1" parent="1" source="kX9hmvOGpruLOVg8XKAf-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="kX9hmvOGpruLOVg8XKAf-10" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-9" parent="1" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.terminator;whiteSpace=wrap;sketch=1;curveFitting=1;jiggle=2;" value="[0] try_run_sampling_request" vertex="1">
+          <mxGeometry height="60" width="180" x="360" y="830" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-10" parent="1" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;sketch=1;curveFitting=1;jiggle=2;" value="&lt;span style=&quot;color: rgb(51, 51, 51); font-family: &amp;quot;Open Sans&amp;quot;, &amp;quot;Clear Sans&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, &amp;quot;Segoe UI Emoji&amp;quot;, &amp;quot;SF Pro&amp;quot;, sans-serif; font-size: 16px; orphans: 1; text-align: left; white-space: pre-wrap; background-color: rgb(255, 255, 255);&quot;&gt;[1] 发起请求&lt;/span&gt;" vertex="1">
+          <mxGeometry height="60" width="429" x="235.5" y="960" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-11" parent="1" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;strokeColor=#56517e;fillColor=#d0cee2;" value="" vertex="1">
+          <mxGeometry height="1040" width="1350" x="210" y="1060" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-32" edge="1" parent="1" source="kX9hmvOGpruLOVg8XKAf-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="kX9hmvOGpruLOVg8XKAf-15">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-33" edge="1" parent="1" source="kX9hmvOGpruLOVg8XKAf-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="kX9hmvOGpruLOVg8XKAf-16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-34" edge="1" parent="1" source="kX9hmvOGpruLOVg8XKAf-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="kX9hmvOGpruLOVg8XKAf-17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-35" edge="1" parent="1" source="kX9hmvOGpruLOVg8XKAf-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="kX9hmvOGpruLOVg8XKAf-18">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-36" edge="1" parent="1" source="kX9hmvOGpruLOVg8XKAf-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="kX9hmvOGpruLOVg8XKAf-19">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-37" edge="1" parent="1" source="kX9hmvOGpruLOVg8XKAf-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="kX9hmvOGpruLOVg8XKAf-20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-38" edge="1" parent="1" source="kX9hmvOGpruLOVg8XKAf-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="kX9hmvOGpruLOVg8XKAf-22">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-39" edge="1" parent="1" source="kX9hmvOGpruLOVg8XKAf-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="kX9hmvOGpruLOVg8XKAf-23">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-12" parent="1" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;sketch=1;curveFitting=1;jiggle=2;" value="&lt;span style=&quot;color: rgb(51, 51, 51); font-family: &amp;quot;Open Sans&amp;quot;, &amp;quot;Clear Sans&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, &amp;quot;Segoe UI Emoji&amp;quot;, &amp;quot;SF Pro&amp;quot;, sans-serif; font-size: 16px; orphans: 1; text-align: left; white-space: pre-wrap; background-color: rgb(255, 255, 255);&quot;&gt;[1] match event&lt;/span&gt;" vertex="1">
+          <mxGeometry height="60" width="429" x="235.5" y="1080" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-50" edge="1" parent="1" source="kX9hmvOGpruLOVg8XKAf-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="kX9hmvOGpruLOVg8XKAf-44">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1530" y="1220" />
+              <mxPoint x="1530" y="2140" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-15" parent="1" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;sketch=1;curveFitting=1;jiggle=2;" value="&lt;span style=&quot;color: rgb(51, 51, 51); font-family: &amp;quot;Open Sans&amp;quot;, &amp;quot;Clear Sans&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, &amp;quot;Segoe UI Emoji&amp;quot;, &amp;quot;SF Pro&amp;quot;, sans-serif; font-size: 16px; orphans: 1; text-align: left; white-space: pre-wrap; background-color: rgb(255, 255, 255);&quot;&gt;[1] &lt;/span&gt;&lt;span style=&quot;color: rgb(51, 51, 51); font-family: &amp;quot;Open Sans&amp;quot;, &amp;quot;Clear Sans&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, &amp;quot;Segoe UI Emoji&amp;quot;, &amp;quot;SF Pro&amp;quot;, sans-serif; font-size: 16px; orphans: 1; text-align: left; white-space: pre-wrap; background-color: rgb(255, 255, 255);&quot;&gt;Created&lt;/span&gt;" vertex="1">
+          <mxGeometry height="60" width="429" x="460" y="1190" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-42" edge="1" parent="1" source="kX9hmvOGpruLOVg8XKAf-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="kX9hmvOGpruLOVg8XKAf-40">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-43" edge="1" parent="1" source="kX9hmvOGpruLOVg8XKAf-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="kX9hmvOGpruLOVg8XKAf-41">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-16" parent="1" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;sketch=1;curveFitting=1;jiggle=2;" value="&lt;span style=&quot;color: rgb(51, 51, 51); font-family: &amp;quot;Open Sans&amp;quot;, &amp;quot;Clear Sans&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, &amp;quot;Segoe UI Emoji&amp;quot;, &amp;quot;SF Pro&amp;quot;, sans-serif; font-size: 16px; orphans: 1; text-align: left; white-space: pre-wrap; background-color: rgb(255, 255, 255);&quot;&gt;[1] &lt;/span&gt;&lt;span style=&quot;color: rgb(51, 51, 51); font-family: &amp;quot;Open Sans&amp;quot;, &amp;quot;Clear Sans&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, &amp;quot;Segoe UI Emoji&amp;quot;, &amp;quot;SF Pro&amp;quot;, sans-serif; font-size: 16px; orphans: 1; text-align: left; white-space: pre-wrap; background-color: rgb(255, 255, 255);&quot;&gt;OutputItemDone&lt;/span&gt;" vertex="1">
+          <mxGeometry height="60" width="429" x="460" y="1300" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-51" edge="1" parent="1" source="kX9hmvOGpruLOVg8XKAf-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="kX9hmvOGpruLOVg8XKAf-44">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1530" y="1460" />
+              <mxPoint x="1530" y="2140" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-17" parent="1" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;sketch=1;curveFitting=1;jiggle=2;" value="&lt;span style=&quot;color: rgb(51, 51, 51); font-family: &amp;quot;Open Sans&amp;quot;, &amp;quot;Clear Sans&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, &amp;quot;Segoe UI Emoji&amp;quot;, &amp;quot;SF Pro&amp;quot;, sans-serif; font-size: 16px; orphans: 1; text-align: left; white-space: pre-wrap; background-color: rgb(255, 255, 255);&quot;&gt;[1] &lt;/span&gt;&lt;span style=&quot;color: rgb(51, 51, 51); font-family: &amp;quot;Open Sans&amp;quot;, &amp;quot;Clear Sans&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, &amp;quot;Segoe UI Emoji&amp;quot;, &amp;quot;SF Pro&amp;quot;, sans-serif; font-size: 16px; orphans: 1; text-align: left; white-space: pre-wrap; background-color: rgb(255, 255, 255);&quot;&gt;OutputItemAdded&lt;/span&gt;" vertex="1">
+          <mxGeometry height="60" width="429" x="460" y="1430" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-54" edge="1" parent="1" source="kX9hmvOGpruLOVg8XKAf-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="kX9hmvOGpruLOVg8XKAf-44">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1530" y="1580" />
+              <mxPoint x="1530" y="2140" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-18" parent="1" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;sketch=1;curveFitting=1;jiggle=2;" value="&lt;span style=&quot;color: rgb(51, 51, 51); font-family: &amp;quot;Open Sans&amp;quot;, &amp;quot;Clear Sans&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, &amp;quot;Segoe UI Emoji&amp;quot;, &amp;quot;SF Pro&amp;quot;, sans-serif; font-size: 16px; orphans: 1; text-align: left; white-space: pre-wrap; background-color: rgb(255, 255, 255);&quot;&gt;[1] &lt;/span&gt;&lt;span style=&quot;color: rgb(51, 51, 51); font-family: &amp;quot;Open Sans&amp;quot;, &amp;quot;Clear Sans&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, &amp;quot;Segoe UI Emoji&amp;quot;, &amp;quot;SF Pro&amp;quot;, sans-serif; font-size: 16px; orphans: 1; text-align: left; white-space: pre-wrap; background-color: rgb(255, 255, 255);&quot;&gt;ServerModel&lt;/span&gt;" vertex="1">
+          <mxGeometry height="60" width="429" x="460" y="1550" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-55" edge="1" parent="1" source="kX9hmvOGpruLOVg8XKAf-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="kX9hmvOGpruLOVg8XKAf-44">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1530" y="1700" />
+              <mxPoint x="1530" y="2140" />
+            </Array>
+            <mxPoint x="1080" y="2039.9999999999995" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-19" parent="1" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;sketch=1;curveFitting=1;jiggle=2;" value="&lt;span style=&quot;color: rgb(51, 51, 51); font-family: &amp;quot;Open Sans&amp;quot;, &amp;quot;Clear Sans&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, &amp;quot;Segoe UI Emoji&amp;quot;, &amp;quot;SF Pro&amp;quot;, sans-serif; font-size: 16px; orphans: 1; text-align: left; white-space: pre-wrap; background-color: rgb(255, 255, 255);&quot;&gt;[1] &lt;/span&gt;&lt;span style=&quot;color: rgb(51, 51, 51); font-family: &amp;quot;Open Sans&amp;quot;, &amp;quot;Clear Sans&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, &amp;quot;Segoe UI Emoji&amp;quot;, &amp;quot;SF Pro&amp;quot;, sans-serif; font-size: 16px; orphans: 1; text-align: left; white-space: pre-wrap; background-color: rgb(255, 255, 255);&quot;&gt;Completed&lt;/span&gt;" vertex="1">
+          <mxGeometry height="60" width="429" x="460" y="1670" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-56" edge="1" parent="1" source="kX9hmvOGpruLOVg8XKAf-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="kX9hmvOGpruLOVg8XKAf-44">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1530" y="1820" />
+              <mxPoint x="1530" y="2140" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-20" parent="1" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;sketch=1;curveFitting=1;jiggle=2;" value="&lt;span style=&quot;color: rgb(51, 51, 51); font-family: &amp;quot;Open Sans&amp;quot;, &amp;quot;Clear Sans&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, &amp;quot;Segoe UI Emoji&amp;quot;, &amp;quot;SF Pro&amp;quot;, sans-serif; font-size: 16px; orphans: 1; text-align: left; white-space: pre-wrap; background-color: rgb(255, 255, 255);&quot;&gt;[1] &lt;/span&gt;&lt;span style=&quot;color: rgb(51, 51, 51); font-family: &amp;quot;Open Sans&amp;quot;, &amp;quot;Clear Sans&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, &amp;quot;Segoe UI Emoji&amp;quot;, &amp;quot;SF Pro&amp;quot;, sans-serif; font-size: 16px; orphans: 1; text-align: left; white-space: pre-wrap; background-color: rgb(255, 255, 255);&quot;&gt;Delta相关&lt;/span&gt;" vertex="1">
+          <mxGeometry height="60" width="429" x="460" y="1790" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-57" edge="1" parent="1" source="kX9hmvOGpruLOVg8XKAf-22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="kX9hmvOGpruLOVg8XKAf-44">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1530" y="1940" />
+              <mxPoint x="1530" y="2140" />
+            </Array>
+            <mxPoint x="800" y="2169.9999999999995" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-22" parent="1" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;sketch=1;curveFitting=1;jiggle=2;" value="&lt;span style=&quot;color: rgb(51, 51, 51); font-family: &amp;quot;Open Sans&amp;quot;, &amp;quot;Clear Sans&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, &amp;quot;Segoe UI Emoji&amp;quot;, &amp;quot;SF Pro&amp;quot;, sans-serif; font-size: 16px; orphans: 1; text-align: left; white-space: pre-wrap; background-color: rgb(255, 255, 255);&quot;&gt;[1] &lt;/span&gt;&lt;span style=&quot;color: rgb(51, 51, 51); font-family: &amp;quot;Open Sans&amp;quot;, &amp;quot;Clear Sans&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, &amp;quot;Segoe UI Emoji&amp;quot;, &amp;quot;SF Pro&amp;quot;, sans-serif; font-size: 16px; orphans: 1; text-align: left; white-space: pre-wrap; background-color: rgb(255, 255, 255);&quot;&gt;Reasoning相关&lt;/span&gt;" vertex="1">
+          <mxGeometry height="60" width="429" x="460" y="1910" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-58" edge="1" parent="1" source="kX9hmvOGpruLOVg8XKAf-23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="kX9hmvOGpruLOVg8XKAf-44">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1530" y="2050" />
+              <mxPoint x="1530" y="2140" />
+            </Array>
+            <mxPoint x="750" y="2180" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-23" parent="1" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;sketch=1;curveFitting=1;jiggle=2;" value="&lt;span style=&quot;color: rgb(51, 51, 51); font-family: &amp;quot;Open Sans&amp;quot;, &amp;quot;Clear Sans&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, &amp;quot;Segoe UI Emoji&amp;quot;, &amp;quot;SF Pro&amp;quot;, sans-serif; font-size: 16px; orphans: 1; text-align: left; white-space: pre-wrap; background-color: rgb(255, 255, 255);&quot;&gt;[1] &lt;/span&gt;&lt;span style=&quot;color: rgb(51, 51, 51); font-family: &amp;quot;Open Sans&amp;quot;, &amp;quot;Clear Sans&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, &amp;quot;Segoe UI Emoji&amp;quot;, &amp;quot;SF Pro&amp;quot;, sans-serif; font-size: 16px; orphans: 1; text-align: left; white-space: pre-wrap; background-color: rgb(255, 255, 255);&quot;&gt;认证计费相关&lt;/span&gt;" vertex="1">
+          <mxGeometry height="60" width="429" x="460" y="2020" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-28" edge="1" parent="1" source="kX9hmvOGpruLOVg8XKAf-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="kX9hmvOGpruLOVg8XKAf-9" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-30" edge="1" parent="1" source="kX9hmvOGpruLOVg8XKAf-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="kX9hmvOGpruLOVg8XKAf-12" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-48" edge="1" parent="1" source="kX9hmvOGpruLOVg8XKAf-40" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="kX9hmvOGpruLOVg8XKAf-44">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1530" y="1270" />
+              <mxPoint x="1530" y="2140" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-40" parent="1" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;sketch=1;curveFitting=1;jiggle=2;" value="&lt;span style=&quot;color: rgb(51, 51, 51); font-family: &amp;quot;Open Sans&amp;quot;, &amp;quot;Clear Sans&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, &amp;quot;Segoe UI Emoji&amp;quot;, &amp;quot;SF Pro&amp;quot;, sans-serif; font-size: 16px; orphans: 1; text-align: left; white-space: pre-wrap; background-color: rgb(255, 255, 255);&quot;&gt;[1] &lt;/span&gt;&lt;span style=&quot;color: rgb(51, 51, 51); font-family: &amp;quot;Open Sans&amp;quot;, &amp;quot;Clear Sans&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, &amp;quot;Segoe UI Emoji&amp;quot;, &amp;quot;SF Pro&amp;quot;, sans-serif; font-size: 16px; orphans: 1; text-align: left; white-space: pre-wrap; background-color: rgb(255, 255, 255);&quot;&gt;plan模式处理&lt;/span&gt;" vertex="1">
+          <mxGeometry height="60" width="429" x="990" y="1240" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-49" edge="1" parent="1" source="kX9hmvOGpruLOVg8XKAf-41" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="kX9hmvOGpruLOVg8XKAf-44">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1530" y="1380" />
+              <mxPoint x="1530" y="2140" />
+            </Array>
+            <mxPoint x="660" y="2139.9999999999995" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-41" parent="1" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;sketch=1;curveFitting=1;jiggle=2;" value="&lt;span style=&quot;color: rgb(51, 51, 51); font-family: &amp;quot;Open Sans&amp;quot;, &amp;quot;Clear Sans&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, &amp;quot;Segoe UI Emoji&amp;quot;, &amp;quot;SF Pro&amp;quot;, sans-serif; font-size: 16px; orphans: 1; text-align: left; white-space: pre-wrap; background-color: rgb(255, 255, 255);&quot;&gt;[1] &lt;/span&gt;&lt;span style=&quot;color: rgb(51, 51, 51); font-family: &amp;quot;Open Sans&amp;quot;, &amp;quot;Clear Sans&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, &amp;quot;Segoe UI Emoji&amp;quot;, &amp;quot;SF Pro&amp;quot;, sans-serif; font-size: 16px; orphans: 1; text-align: left; white-space: pre-wrap; background-color: rgb(255, 255, 255);&quot;&gt;工具调用&lt;/span&gt;" vertex="1">
+          <mxGeometry height="60" width="429" x="990" y="1350" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-59" edge="1" parent="1" source="kX9hmvOGpruLOVg8XKAf-44" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="kX9hmvOGpruLOVg8XKAf-45" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-44" parent="1" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;sketch=1;curveFitting=1;jiggle=2;" value="&lt;span style=&quot;color: rgb(51, 51, 51); font-family: &amp;quot;Open Sans&amp;quot;, &amp;quot;Clear Sans&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, &amp;quot;Segoe UI Emoji&amp;quot;, &amp;quot;SF Pro&amp;quot;, sans-serif; font-size: 16px; orphans: 1; text-align: left; white-space: pre-wrap; background-color: rgb(255, 255, 255);&quot;&gt;[1] &lt;/span&gt;&lt;span style=&quot;color: rgb(51, 51, 51); font-family: &amp;quot;Open Sans&amp;quot;, &amp;quot;Clear Sans&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, &amp;quot;Segoe UI Emoji&amp;quot;, &amp;quot;SF Pro&amp;quot;, sans-serif; font-size: 16px; orphans: 1; text-align: left; white-space: pre-wrap; background-color: rgb(255, 255, 255);&quot;&gt;等待工具结果&lt;/span&gt;" vertex="1">
+          <mxGeometry height="60" width="429" x="235.5" y="2110" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-60" edge="1" parent="1" source="kX9hmvOGpruLOVg8XKAf-45" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="kX9hmvOGpruLOVg8XKAf-47" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-45" parent="1" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;sketch=1;curveFitting=1;jiggle=2;" value="&lt;span style=&quot;color: rgb(51, 51, 51); font-family: &amp;quot;Open Sans&amp;quot;, &amp;quot;Clear Sans&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, &amp;quot;Segoe UI Emoji&amp;quot;, &amp;quot;SF Pro&amp;quot;, sans-serif; font-size: 16px; orphans: 1; text-align: left; white-space: pre-wrap; background-color: rgb(255, 255, 255);&quot;&gt;[1] 发送diff&lt;/span&gt;" vertex="1">
+          <mxGeometry height="60" width="429" x="235.5" y="2210" as="geometry" />
+        </mxCell>
+        <mxCell id="kX9hmvOGpruLOVg8XKAf-47" parent="1" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.terminator;whiteSpace=wrap;sketch=1;curveFitting=1;jiggle=2;" value="[19] 结束" vertex="1">
+          <mxGeometry height="60" width="100" x="400" y="2320" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

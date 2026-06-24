@@ -1,11 +1,16 @@
 const SVG_NS = "http://www.w3.org/2000/svg";
 const XHTML_NS = "http://www.w3.org/1999/xhtml";
-const diagramData = window.CodexRunTurnDiagram;
+const flowConfig = window.CodexFlowPage || {};
+const diagramData = flowConfig.diagramData || window.CodexRunTurnDiagram;
 const docsContent = window.CodexDocsContent;
 const svg = document.querySelector("[data-run-turn-svg]");
 const detailStep = document.querySelector("[data-run-turn-step]");
 const detailTitle = document.querySelector("[data-run-turn-title]");
 const detailBody = document.querySelector("[data-run-turn-body]");
+const detailDocQueries = flowConfig.detailDocQueries || ["run-turn", "turn & run_turn", "run_turn"];
+const nodeLabel = flowConfig.nodeLabel || "run_turn node";
+const missingDiagramMessage = flowConfig.missingDiagramMessage || "未找到 run_turn.drawio。";
+const emptyDetailText = flowConfig.emptyDetailText || "详情待补充。";
 const DETAIL_JUMP_ALIASES = {
   "压缩上下文": "context-compaction",
   "上下文压缩": "context-compaction",
@@ -15,6 +20,13 @@ const DETAIL_JUMP_ALIASES = {
   "hook点": "hooks",
   "pending_input": "pending-input",
   "tool call": "tool-call"
+};
+const DETAIL_PAGE_JUMPS = {
+  "run-sampling-request": {
+    href: "run-sampling-request.html",
+    label: "run_sampling_request"
+  },
+  ...(flowConfig.detailPageJumps || {})
 };
 
 function svgElement(tagName, attributes = {}) {
@@ -78,8 +90,8 @@ function findDoc(value) {
     docs.find((doc) => (doc.aliases || []).some((alias) => normalizeLookup(alias) === normalized));
 }
 
-function findRunTurnDoc() {
-  return findDoc("run-turn") || findDoc("turn & run_turn") || findDoc("run_turn");
+function findDetailDoc() {
+  return detailDocQueries.map((query) => findDoc(query)).find(Boolean) || null;
 }
 
 function findJumpDoc(label) {
@@ -88,6 +100,10 @@ function findJumpDoc(label) {
 
   const aliasSlug = DETAIL_JUMP_ALIASES[label] || DETAIL_JUMP_ALIASES[normalizeLookup(label)];
   return aliasSlug ? findDoc(aliasSlug) : null;
+}
+
+function findJumpPage(label) {
+  return DETAIL_PAGE_JUMPS[normalizeLookup(label)] || null;
 }
 
 function renderInlineMarkdown(text) {
@@ -145,11 +161,12 @@ function appendDetailList(parent, items, ordered) {
 }
 
 function appendDetailJump(parent, label) {
+  const page = findJumpPage(label);
   const doc = findJumpDoc(label);
-  const link = htmlElement("a", "run-turn-detail-link", `详情跳转：${label}`);
-  link.href = doc ? `topic.html?doc=${encodeURIComponent(doc.slug)}` : "#";
+  const link = htmlElement("a", "run-turn-detail-link", `详情跳转：${page?.label || label}`);
+  link.href = page?.href || (doc ? `topic.html?doc=${encodeURIComponent(doc.slug)}` : "#");
 
-  if (!doc) {
+  if (!page && !doc) {
     link.classList.add("is-missing");
     link.setAttribute("aria-disabled", "true");
     link.addEventListener("click", (event) => event.preventDefault());
@@ -201,7 +218,7 @@ function renderDetailMarkdown(markdown, parent) {
       return;
     }
 
-    const jump = trimmed.match(/^\[详情跳转(?:到)?(.+?)\]$/);
+    const jump = trimmed.match(/^\[(?:详情)?跳转(?:到)?(.+?)\]$/);
     if (jump) {
       flushParagraph();
       flushList();
@@ -256,7 +273,7 @@ function renderDetailMarkdown(markdown, parent) {
 }
 
 function parseRunTurnDetails() {
-  const doc = findRunTurnDoc();
+  const doc = findDetailDoc();
   const sections = new Map();
 
   if (!doc?.markdown) return sections;
@@ -1016,7 +1033,7 @@ function diagramBounds(items) {
 
 function stepText(node) {
   const step = stepNumber(node);
-  return step ? `Step ${step}` : "run_turn node";
+  return step ? `Step ${step}` : nodeLabel;
 }
 
 function stepNumber(node) {
@@ -1040,7 +1057,7 @@ function setActiveNode(group, node) {
     return;
   }
 
-  detailBody.textContent = "详情待补充。";
+  detailBody.textContent = emptyDetailText;
 }
 
 function renderDiagram(diagram) {
@@ -1189,7 +1206,7 @@ function renderError(message) {
 }
 
 if (!diagramData?.xml) {
-  renderError("未找到 run_turn.drawio。");
+  renderError(missingDiagramMessage);
 } else {
   renderDiagram(parseDiagram(diagramData.xml));
 }

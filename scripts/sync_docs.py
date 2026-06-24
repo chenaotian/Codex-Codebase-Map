@@ -10,11 +10,20 @@ from pathlib import Path
 BLOG_ROOT = Path(__file__).resolve().parents[1]
 EXTERNAL_DOCS = BLOG_ROOT.parent / "final_docs"
 SNAPSHOT_DOCS = BLOG_ROOT / "content" / "final_docs"
-EXTERNAL_RUN_TURN_DIAGRAM = BLOG_ROOT.parent / "run_turn.drawio"
 SNAPSHOT_DIAGRAMS = BLOG_ROOT / "content" / "diagrams"
-RUN_TURN_DIAGRAM_SNAPSHOT = SNAPSHOT_DIAGRAMS / "run_turn.drawio"
 OUTPUT_FILE = BLOG_ROOT / "data" / "docs-content.js"
-RUN_TURN_DIAGRAM_OUTPUT_FILE = BLOG_ROOT / "data" / "run-turn-diagram.js"
+FLOW_DIAGRAMS = {
+    "run_turn": {
+        "source_file": "run_turn.drawio",
+        "output_file": BLOG_ROOT / "data" / "run-turn-diagram.js",
+        "window_var": "CodexRunTurnDiagram",
+    },
+    "run_sampling_request": {
+        "source_file": "run_sampling_request.drawio",
+        "output_file": BLOG_ROOT / "data" / "run-sampling-request-diagram.js",
+        "window_var": "CodexRunSamplingRequestDiagram",
+    },
+}
 
 KNOWN_DOCS = {
     "plan模式与plan工具": {
@@ -68,6 +77,10 @@ KNOWN_DOCS = {
     "turn & run_turn": {
         "slug": "run-turn",
         "aliases": ["turn & run_turn", "turn run_turn", "run_turn", "turn"],
+    },
+    "run_sampling_request": {
+        "slug": "run-sampling-request",
+        "aliases": ["run_sampling_request", "run sampling request", "run-sampling-request"],
     },
     "submission_loop": {
         "slug": "submission-loop",
@@ -153,28 +166,31 @@ def read_text_with_fallback(path: Path) -> str:
         return path.read_text(encoding="gb18030")
 
 
-def sync_run_turn_diagram() -> tuple[Path | None, str]:
+def sync_flow_diagram(config: dict) -> tuple[Path | None, str]:
     SNAPSHOT_DIAGRAMS.mkdir(parents=True, exist_ok=True)
+    source_file = config["source_file"]
+    external_diagram = BLOG_ROOT.parent / source_file
+    snapshot_diagram = SNAPSHOT_DIAGRAMS / source_file
 
-    if EXTERNAL_RUN_TURN_DIAGRAM.exists():
-        shutil.copy2(EXTERNAL_RUN_TURN_DIAGRAM, RUN_TURN_DIAGRAM_SNAPSHOT)
-        return RUN_TURN_DIAGRAM_SNAPSHOT, "external"
+    if external_diagram.exists():
+        shutil.copy2(external_diagram, snapshot_diagram)
+        return snapshot_diagram, "external"
 
-    if RUN_TURN_DIAGRAM_SNAPSHOT.exists():
-        return RUN_TURN_DIAGRAM_SNAPSHOT, "snapshot"
+    if snapshot_diagram.exists():
+        return snapshot_diagram, "snapshot"
 
     return None, "missing"
 
 
-def write_run_turn_diagram(diagram_path: Path | None, source_kind: str) -> None:
+def write_flow_diagram(config: dict, diagram_path: Path | None, source_kind: str) -> None:
     payload = {
         "generatedAt": datetime.now().isoformat(timespec="seconds"),
         "sourceKind": source_kind,
-        "sourceFile": "run_turn.drawio",
+        "sourceFile": config["source_file"],
         "xml": read_text_with_fallback(diagram_path) if diagram_path else "",
     }
-    js = "window.CodexRunTurnDiagram = " + json.dumps(payload, ensure_ascii=False, indent=2) + ";\n"
-    RUN_TURN_DIAGRAM_OUTPUT_FILE.write_text(js, encoding="utf-8")
+    js = f"window.{config['window_var']} = " + json.dumps(payload, ensure_ascii=False, indent=2) + ";\n"
+    config["output_file"].write_text(js, encoding="utf-8")
 
 
 def build_docs(source: Path) -> list[dict]:
@@ -230,7 +246,6 @@ def build_docs(source: Path) -> list[dict]:
 
 def main() -> None:
     source, source_kind = copy_external_docs()
-    diagram_path, diagram_source_kind = sync_run_turn_diagram()
     docs = build_docs(source)
     payload = {
         "generatedAt": datetime.now().isoformat(timespec="seconds"),
@@ -239,9 +254,12 @@ def main() -> None:
     }
     js = "window.CodexDocsContent = " + json.dumps(payload, ensure_ascii=False, indent=2) + ";\n"
     OUTPUT_FILE.write_text(js, encoding="utf-8")
-    write_run_turn_diagram(diagram_path, diagram_source_kind)
     print(f"Synced {len(docs)} docs from {source_kind} source into {SNAPSHOT_DOCS}")
-    print(f"Synced run_turn.drawio from {diagram_source_kind} source into {SNAPSHOT_DIAGRAMS}")
+
+    for name, config in FLOW_DIAGRAMS.items():
+        diagram_path, diagram_source_kind = sync_flow_diagram(config)
+        write_flow_diagram(config, diagram_path, diagram_source_kind)
+        print(f"Synced {config['source_file']} from {diagram_source_kind} source into {SNAPSHOT_DIAGRAMS}")
 
 
 if __name__ == "__main__":
