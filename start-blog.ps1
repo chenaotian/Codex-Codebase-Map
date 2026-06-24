@@ -11,7 +11,7 @@ try {
   Write-Host ""
   Write-Host "Blog is available at http://127.0.0.1:$Port/"
   Write-Host "Press Ctrl+C to stop."
-  python -m http.server $Port --bind 127.0.0.1
+  python ".\scripts\dev_server.py" --port $Port --bind 127.0.0.1 --directory $blogRoot
 } finally {
   Pop-Location
 }
