@@ -2,6 +2,8 @@
 
 这是一个用于整理 Codex 源码知识的小型静态博客。当前以知识地图主页作为入口，后续内容继续按模块拆分，不把所有东西塞进 `index.html`。
 
+Web 版可以直接访问：[Codex-Codebase-Map](https://chenaotian.github.io/Codex-Codebase-Map/)。
+
 ## 结构约定
 
 - `index.html`：页面壳、标题、SVG 容器和脚本入口。
