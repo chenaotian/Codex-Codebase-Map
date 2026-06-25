@@ -336,11 +336,11 @@ function createTopicList(item, depth) {
 function appendList(parent, items) {
   if (!items.length) return;
 
-  const baseIndent = Math.min(...items.map((item) => item.indent));
+  const indentLevels = [...new Set(items.map((item) => item.indent))].sort((a, b) => a - b);
   const stack = [];
 
   items.forEach((item) => {
-    let depth = Math.max(0, item.indent - baseIndent);
+    let depth = Math.max(0, indentLevels.indexOf(item.indent));
 
     if (depth > stack.length) {
       depth = stack.length;
