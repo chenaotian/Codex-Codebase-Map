@@ -4,11 +4,13 @@
 
 ![ChatGPT Image 2026年6月23日 16_47_43](D:\work\codex\final_docs\submission_loop.assets\ChatGPT Image 2026年6月23日 16_47_43.png)
 
-`submission_loop` 是 **Session 输入侧的总调度循环**。它消费 `rx_sub`，也就是 `tx_sub.send(Submission)` 发进来的所有操作，然后根据 `Op` 分发到对应 handler，负责把外部指令转成对 `Session`、`active_turn`、工具审批、MCP、compact、rollback、shutdown 等内部状态机的操作，一些关键handler 处理逻辑如下。
+`submission_loop` 是 **Session 输入侧的总调度循环**。它消费 `rx_sub`，也就是 `tx_sub.send(Submission)` 发进来的所有操作，**然后根据 `Op` 分发到对应 handler，**负责把外部指令转成对 `Session`、`active_turn`、工具审批、MCP、compact、rollback、shutdown 等内部状态机的操作，一些关键handler 处理逻辑如下。
 
 ### UserInput
 
-普通对话主入口，这是最重要的 handler，走user_input_or_turn_inner，大体流程如下：
+![ChatGPT Image 2026年6月25日 12_37_45](D:\work\codex\final_docs\submission_loop.assets\ChatGPT Image 2026年6月25日 12_37_45.png)
+
+**普通对话主入口**，这是最重要的 handler，走user_input_or_turn_inner，大体流程如下：
 
 - user_input_or_turn_inner
   - 解析用户输入的内容，文本，图片等。
@@ -16,8 +18,8 @@
     - 如果用户修改了thread 级别的设置，比如模型，思考强度，cwd等
     - 如果用户有本轮的临时设置，比如输出格式schema/environments等
   - 查看是否有active regular turn(当前thread 是否是普通用户聊天并且有活跃turn)，其实很容易理解，主要是看当前如果有正在跑的turn，如果是review 或者compact，自然是没办法追加用户输入的。
-    - 有：把当前输入添加到pending_input，然后结束，返回成功
-    - 无：相当于当前thread 空闲，需要新建一个regular turn:
+    - **有：把当前输入添加到pending_input，然后结束，返回成功**
+    - **无：相当于当前thread 空闲，需要新建一个regular turn:**
       - 可能需要刷新mcp servers，refresh_mcp_servers_if_requested
       - 把客户端传入的 `additional_context` 合并进 `SessionState.additional_context`。然后转换成 `TurnInput::ResponseItem`，作为 `task_input` 的前缀。
       - 再把正经的用户输入放入 `task_input` ，也就是additional_context 在前，userinput在后。
@@ -87,5 +89,3 @@ child run_turn 完成
        -> parent run_turn 继续
   -> 否则等待 parent 下一轮 drain
 ```
-
-### 

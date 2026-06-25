@@ -4,7 +4,7 @@
 
 ![ChatGPT Image 2026年6月23日 15_54_59](D:\work\codex\final_docs\skill.assets\ChatGPT Image 2026年6月23日 15_54_59.png)
 
-Skill 通常是一组专门的说明、流程、模板、脚本或参考资料，用来教 Codex 怎么更好地完成某类任务。其实就是一组准备好的提示词。
+**Skill 通常是一组专门的说明、流程、模板、脚本或参考资料，用来教 Codex 怎么更好地完成某类任务。其实就是一组准备好的提示词。**
 
 ### skill 格式
 
@@ -93,7 +93,7 @@ policy:
               -> build_available_skills(...)
   ```
 
-  build_available_skills 中会把 `SkillLoadOutcome.skills` (所有skill)渲染成“有哪些 skill 可用”的说明，让模型知道可以按需打开某个 `SKILL.md`。这其中会过滤掉：
+  **build_available_skills 中会把 `SkillLoadOutcome.skills` (所有skill)渲染成“有哪些 skill 可用”的说明，让模型知道可以按需打开某个 `SKILL.md`。**这其中会过滤掉：
 
   ```
   1. disable 的skill：如果这个 skill 的 `path_to_skills_md` 在 `disabled_paths` 里，就不会出现在给模型的 available skills 列表里。
@@ -111,7 +111,7 @@ policy:
     budget = 默认字符数（8000 个字符）
   ```
 
-- 当前 turn 显式提及时注入 skill 内容
+- **当前 turn 显式提及时注入 skill 内容**
 
   ```
   run_turn
@@ -130,7 +130,7 @@ policy:
          		-> 写入 conversation history
   ```
 
-  用户点名skill 的判断依据：
+  **用户点名skill 的判断依据，用户的input 里skill字段**：
 
   ```
   结构化 Skill 输入优先：
@@ -152,7 +152,7 @@ policy:
       如果有同名则不会选择任何一个
   ```
 
-- 模型自己主动要使用某个skill，模型并不会输出什么格式化输入来调用skill，也没有特定的tool call，而是直接根据skill 的描述中的path，自己主动去打开文件。
+- **模型自己主动要使用某个skill，模型并不会输出什么格式化输入来调用skill，也没有特定的tool call，而是直接根据skill 的描述中的path，自己主动去打开文件。**
 
 - 隐式调用检测
 
@@ -166,6 +166,6 @@ policy:
 
 ### 总结
 
-skill 的本质其实就是可复用的上下文，核心步骤其实就一个，就是把skill.md塞到上下文里，如果skill 还有其他文件，也都是模型根据skill.md的指引去使用。值得注意的是，当前codex 没有防止重复显示调用skill 的功能，也就是说如果你重复点名使用某个skill，其实是会重复加载这个skill.md的。但根据模型能力，模型一般不会自主的去隐式调用已经加载过的skill。但如果上下文压缩过的话，模型可能会去重复隐式调用。
+skill 的本质其实就是可复用的上下文，**核心步骤其实就一个，就是把skill.md塞到上下文里，如果skill 还有其他文件，也都是模型根据skill.md的指引去使用。**值得注意的是，当前codex 没有防止重复显示调用skill 的功能，也就是说如果你重复点名使用某个skill，其实是会重复加载这个skill.md的。但根据模型能力，模型一般不会自主的去隐式调用已经加载过的skill。但如果上下文压缩过的话，模型可能会去重复隐式调用。
 
 ![image-20260616010847929](D:\work\codex\final_docs\skill.assets\image-20260616010847929.png)

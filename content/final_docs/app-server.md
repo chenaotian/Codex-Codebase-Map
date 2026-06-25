@@ -19,9 +19,9 @@
 部分传参：
 
 - `model`/`modelProvider`：指定线程使用的模型，和模型provider。
-- `cwd`：thread的工作目录。
-- `approvalPolicy`：控制什么时候需要向用户请求批准，比如永不、按需、失败时等。会转换成 core 层的 approval policy。
-- `approvalsReviewer`：审批请求给谁看，用户或auto-review subagent。
+- `cwd`：thread的工作目录，一般就用来计算相对路径，不是workspace。
+- `approvalPolicy`：控制什么时候需要向用户请求批准，比如永不、按需、失败时等。会转换成 core 层的 approval policy，参考审批章节。
+- `approvalsReviewer`：审批请求给谁看，用户或auto-review subagent(替我审批)。
 - `sandbox`：旧式/兼容式沙箱参数，比如 read-only、workspace-write、danger-full-access。会转换成 core 的 `sandbox_mode`。
   - read-only
   - workspace-write
@@ -39,11 +39,12 @@
 下面的参数是实验性参数，需要开启experimentalApi 才可以使用：
 
 - `permissions`：新的命名权限 profile id。比如某个内置 profile 或配置里定义的 profile。注意它不能和 `sandbox` 同时传
+  
   - read-only
   - workspace
   - danger-full-access
   - my-custom-profile：自定义权限，可以自己配置规则， 允许读写哪些目录，是否允许网络等。
-
+  
 - `environments`：线程级 sticky environments。这里需要传入注册好的合法environment，注册需要调用app-server的独立接口`environment/add` 。后续每个turn 都可以选择一个environment 作为自己的环境（当然也可以选择这里没有的，意义不是很大）。每个元素有 `environment_id` 和 `cwd`。如：
 
   ```
@@ -53,7 +54,7 @@
   ]
   ```
 
-- `dynamicTools`：启动 thread 时动态注册工具。每个工具有 `namespace`、`name`、`description`、`input_schema`、`defer_loading`。可以理解为工具使用方法声明，app-server会将其暴露给大模型，大模型要使用的时候app-server会管客户端要。
+- `dynamicTools`：**启动 thread 时动态注册工具。**每个工具有 `namespace`、`name`、`description`、`input_schema`、`defer_loading`。可以理解为工具使用方法声明，app-server会将其暴露给大模型，大模型要使用的时候app-server会管客户端要。
 
 返回:
 
@@ -107,8 +108,8 @@
 部分特殊传参：
 
 - `threadId`：恢复指定threadid 的会话。
-- `path`：从指定rollout 文件恢复会话。
-- `history`：可以自己传一段json 格式的history 来恢复会话。
+- `path`：**从指定rollout 文件恢复会话。**
+- `history`：**可以自己传一段json 格式的history 来恢复会话。**
 - `baseInstructions`/`developerInstructions`/`personality`：可以覆盖这三者，下一次 `turn/start` 时，app-server/core 会用“旧 conversation history + 新的 instruction/personality 配置”组装后续模型请求。因此它们影响的是之后的模型行为，而不是过去的历史。
 - `excludeTurns`：返回包中不返回thread 的完整历史，减少返回包大小。
 - `initialTurnsPage`：返回大概一页内容的历史，不返回完整历史，这样可以让客户端渲染一页内容出来。
@@ -215,7 +216,7 @@
 
 - `personality`：覆盖本 turn 及后续 turn 的 personality。
 
-- `outputSchema`：仅约束本 turn 的最终 assistant message 输出格式，不作为后续 turn 的 sticky setting。如：
+- `outputSchema`：仅**约束本 turn 的最终 assistant message 输出格式**，不作为后续 turn 的 sticky setting。如：
 
   ```json
   {

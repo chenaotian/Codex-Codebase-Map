@@ -385,6 +385,19 @@
         height: 78,
         labelLines: ["权限与沙箱"],
         note: "权限与沙箱说明文件系统、网络和命令执行边界如何限制实际行为。"
+      },
+      {
+        id: "key-conclusions",
+        level: "summary",
+        title: "关键结论",
+        tier: "汇报入口",
+        docSlug: "关键结论",
+        x: 1845,
+        y: 34,
+        width: 235,
+        height: 82,
+        labelLines: ["关键结论"],
+        note: "独立汇报入口，集中放置本次源码分析最值得先看的判断、摘要和结论。"
       }
     ]
   };

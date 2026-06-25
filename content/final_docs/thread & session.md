@@ -4,16 +4,16 @@
 
 ![ChatGPT Image 2026年6月23日 16_48_28](D:\work\codex\final_docs\thread & session.assets\ChatGPT Image 2026年6月23日 16_48_28.png)
 
-Thread 管“这条对话/任务线怎么活着、怎么保存、怎么被外部控制”；
+**Thread 通俗理解就是一个独立的会话。**
 
-Session 管“这条任务线内部怎么构造上下文、怎么跑模型、怎么调工具、怎么进入下一轮”。
+**Session 通俗的理解就是存放一个thread 里用到的各种东西的数据结构。**
 
 ### run_turn 外层流程
 
 run_turn 的外层概念，外部输入怎么到run_turn 的，大概有两种情况，初始新建thread 然后再启动新turn和已经有thread 把输入送到thread启动新turn：
 
 ```
-ThreadStart / ThreadResume / ThreadFork
+ThreadStart / ThreadResume / ThreadFork：这三个是新建thread
   -> ThreadManager::start/resume/fork
   -> ThreadManagerState::spawn_thread_with_source(...)
   -> Codex::spawn(...)
@@ -73,7 +73,7 @@ ThreadStart / ThreadResume / ThreadFork
 
 #### codex
 
-codex 结构体是core 里一个活跃 agent 会话/线程运行时的句柄。简介如下，里面关键的内容后文会介绍：
+**session 外层的结构体**，codex 结构体是core 里一个活跃 agent 会话/线程运行时的句柄。简介如下，里面关键的内容后文会介绍：
 
 ```rust
 pub struct Codex {
@@ -135,10 +135,10 @@ pub(crate) struct Session {
     - developer_instructions，开发者提示词
     - personality，个性化提示词
     - ...
-  - history：最核心的历史上下文。
+  - **history：最核心的历史上下文。**
   - latest_rate_limits：保存最近一次从模型/API 响应里拿到的 rate limit 信息。
   - mcp_dependency_prompted：记录哪些 MCP dependency 已经提示过用户，避免重复提示。比如某个 MCP server/tool 缺依赖，Codex 已经给用户提示过一次，后面就不想每个 turn 都重复刷同样的提示。
-  - additional_context：客户端额外塞进来的上下文片段，它是“客户端附加上下文”，比如 IDE 插件使用的时候应用的当前文件、选区、外部系统补充材料等。
+  - **additional_context：客户端额外塞进来的上下文片段，它是“客户端附加上下文”，比如 IDE 插件使用的时候应用的当前文件、选区、外部系统补充材料等。**
   - previous_turn_settings：记录上一个 regular user turn 使用的设置。比如用的什么模型
   - auto_compact_window：自动压缩窗口的运行时统计状态，判断 token limit、是否需要 auto compact 时，会用这个状态辅助计算。
   - .....

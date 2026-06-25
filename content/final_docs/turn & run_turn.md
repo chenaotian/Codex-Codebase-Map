@@ -6,7 +6,7 @@
 
 #### turn
 
-在codex 中，一个单独的会话称作一个thread，这个会话有个全局的管理数据结构，叫做session，里面存放这个会话的公共信息，然后在会话中，每发起一次任务回合，叫做一个turn，注意这里turn只的是一个完整任务回合而不是一次模型交互，也就是说一个turn中大部分情况下有多次模型交互。
+在codex 中，**一个单独的会话称作一个thread**，这个会话有个全局的管理数据结构，叫做session，里面存放这个会话的公共信息，然后在会话中，**每发起一次任务回合，叫做一个turn，注意这里turn只的是一个完整任务回合而不是一次模型交互**，也就是说一个turn中大部分情况下有多次模型交互。
 
 #### run_turn
 
@@ -74,6 +74,8 @@ run_pending_session_start_hooks，一个hook点，可以决定是否拦截本次
 
 如果拦截，则直接结束，未拦截则继续下一步。
 
+[详情跳转HOOK点]
+
 ### [5] 记录当前模型
 
 调用set_previous_turn_settings 记录当前使用的模型，如果下一个turn切换模型则会用这个记录的模型做上下文压缩。
@@ -91,15 +93,21 @@ run_pending_session_start_hooks，一个hook点，可以决定是否拦截本次
 判断input是否为空：
 
 - 如果input为空，则设置can_drain_pending_input =true，允许pending_input注入。
-- 如果input不为空，则说明用户输入了内容，则暂时不允许pending_input注入，设置can_drain_pending_input = false。
+- **如果input不为空，则说明用户输入了内容，则暂时不允许pending_input注入**，设置can_drain_pending_input = false。
+
+[详情跳转pending_input]
 
 ### [9] 允许pending_input？
 
 判断刚才设置的can_drain_pending_input，查看是否允许pending_input。
 
+[详情跳转pending_input]
+
 ### [10] 注入pending_input
 
 获取pending_input，注入到conversation history里
+
+[详情跳转pending_input]
 
 ### [11] 构造提示词
 
@@ -109,6 +117,8 @@ run_pending_session_start_hooks，一个hook点，可以决定是否拦截本次
 
 [跳转到run_sampling_request]
 
+
+
 ![ChatGPT Image 2026年6月24日 15_28_48](D:\work\codex\final_docs\turn & run_turn.assets\ChatGPT Image 2026年6月24日 15_28_48.png)
 
 `run_sampling_request` 是 Codex 一次模型 sampling 的内层执行器。它负责为当前 turn 构建工具表、构建 prompt、调用模型流式接口、处理模型输出事件、排队并执行工具调用、把模型输出和工具结果写回会话历史、发送 UI/协议事件、处理 token/ratelimit/diff 信息，并决定外层 `run_turn` 是否需要再发起下一次模型请求。
@@ -117,17 +127,20 @@ run_pending_session_start_hooks，一个hook点，可以决定是否拦截本次
 
 can_drain_pending_input 设置为true(下一次就可以取pending input了)
 
+[详情跳转pending_input]
+
 ### [14] 查看pending_input
 
 查看刚才请求期间用户是否发送了pending input，避免请求之前没有pending_input，请求结束之后模型还返回needs_follow_up=true，然后用户又输入了新的pending_input，结果没处理就返回了。
 
+[详情跳转pending_input]
+
 ### [15] 继续？
 
-是否继续的条件取决于`模型返回的needs_follow_up`或`用户是否发送了pending_input`。
+是否继续的条件**取决于`模型返回的needs_follow_up`或`用户是否发送了pending_input`，任意一个是true 就要继续**：
 
-继续：查询当前花费token与当前模型的token 上限，记录日志。
-
-结束：
+- 继续：查询当前花费token与当前模型的token 上限，记录日志。
+- 结束：准备返回内容
 
 ### [16] 压缩上下文？
 
@@ -153,6 +166,8 @@ Stop hook点，调用run_turn_stop_hooks，用户可以在hook逻辑中决定是
   - build_hook_prompt_message 把 hook prompt 写入历史。 下一轮模型请求会看到它，从而按 hook 要求继续生成/修正。
   - hook 要求 block，但没有给 continuation prompt。忽略然后继续
 - 结束turn，如果 hook 明确要求 stop，就结束 loop。后面函数会返回当前的 last_agent_message。
+
+[详情跳转HOOK点]
 
 ### [19] 结束
 

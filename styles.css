@@ -327,6 +327,29 @@ h1 {
   font-weight: 650;
 }
 
+.node-summary .node-shape {
+  fill: #f4e7a9;
+  stroke: rgba(174, 73, 55, 0.74);
+  stroke-width: 2.7;
+  stroke-dasharray: 13 6;
+}
+
+.node-summary .node-label {
+  fill: #2c211c;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.node-summary {
+  transform: rotate(-2deg);
+}
+
+.node-summary:hover,
+.node-summary:focus-visible,
+.node-summary.is-active {
+  transform: translateY(-5px) rotate(-3deg);
+}
+
 .node-core .node-halo {
   fill: rgba(174, 73, 55, 0.08);
   stroke: var(--core);

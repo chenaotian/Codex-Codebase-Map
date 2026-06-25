@@ -2,7 +2,7 @@
 
 ![ChatGPT Image 2026年6月23日 16_38_48](D:\work\codex\final_docs\rollout文件.assets\ChatGPT Image 2026年6月23日 16_38_48.png)
 
-是 Codex 一次会话/线程的可重放日志，可以理解成是会话的存档，把会话过程按 JSONL 追加保存下来，之后用它做 resume、fork、rollback、历史列表、搜索、元数据索引、memory 输入，以及调试 trace。
+**是 Codex 一次会话/线程的可重放日志，可以理解成是会话的存档**，把会话过程按 JSONL 追加保存下来，之后用它做 resume、fork、rollback、历史列表、搜索、元数据索引、memory 输入，以及调试 trace。
 
 把 rollout JSONL 理解成“很多行带时间戳的事件/状态记录”。每一行顶层都是这个形状：
 
