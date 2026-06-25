@@ -267,7 +267,7 @@
         width: 210,
         height: 82,
         labelLines: ["HOOK点"],
-        note: "HOOK 点适合汇报 turn 主流程里可插入观察、校验或扩展逻辑的位置。"
+        note: "HOOK 点用于理解 turn 主流程里可插入观察、校验或扩展逻辑的位置。"
       },
       {
         id: "mcp-skill",
@@ -390,14 +390,14 @@
         id: "key-conclusions",
         level: "summary",
         title: "关键结论",
-        tier: "汇报入口",
+        tier: "知识入口",
         docSlug: "关键结论",
         x: 1855,
         y: 12,
         width: 145,
         height: 145,
         labelLines: ["关键", "结论"],
-        note: "独立汇报入口，集中放置本次源码分析最值得先看的判断、摘要和结论。"
+        note: "独立知识入口，集中放置源码知识地图里最值得先看的判断、摘要和结论。"
       }
     ]
   };
