@@ -672,36 +672,36 @@ h3.topic-heading {
 }
 
 .syntax-token {
-  font-weight: 760;
+  font-weight: 690;
 }
 
 .syntax-key,
 .syntax-section {
-  color: #285f7f;
+  color: #315f79;
 }
 
 .syntax-string {
-  color: #42724d;
+  color: #4d6f4f;
 }
 
 .syntax-number,
 .syntax-literal {
-  color: #a33d32;
+  color: #9a4b3f;
 }
 
 .syntax-keyword {
-  color: #7a4b91;
+  color: #705785;
 }
 
 .syntax-comment {
-  color: #7a7060;
+  color: #786f63;
   font-style: italic;
-  font-weight: 620;
+  font-weight: 560;
 }
 
 .syntax-punctuation {
-  color: #5e5040;
-  font-weight: 720;
+  color: #635746;
+  font-weight: 640;
 }
 
 .topic-list {

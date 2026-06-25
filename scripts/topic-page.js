@@ -123,8 +123,9 @@ function appendCode(parent, codeLines, language) {
   const pre = element("pre", `topic-code language-${language || "text"}`);
   const code = element("code");
   const text = codeLines.join("\n");
+  const shouldHighlight = Boolean(String(language || "").trim());
 
-  if (window.CodexCodeHighlight) {
+  if (shouldHighlight && window.CodexCodeHighlight) {
     code.appendChild(window.CodexCodeHighlight.highlight(text, language));
   } else {
     code.textContent = text;

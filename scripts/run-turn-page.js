@@ -231,8 +231,9 @@ function appendDetailCode(parent, codeLines, language = "") {
   const pre = htmlElement("pre", `run-turn-detail-code language-${language || "text"}`);
   const code = htmlElement("code");
   const text = codeLines.join("\n");
+  const shouldHighlight = Boolean(String(language || "").trim());
 
-  if (window.CodexCodeHighlight) {
+  if (shouldHighlight && window.CodexCodeHighlight) {
     code.appendChild(window.CodexCodeHighlight.highlight(text, language));
   } else {
     code.textContent = text;
