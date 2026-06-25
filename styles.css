@@ -335,26 +335,41 @@ h1 {
 }
 
 .node-summary .node-shape {
-  fill: #f4e7a9;
-  stroke: rgba(174, 73, 55, 0.74);
-  stroke-width: 2.7;
-  stroke-dasharray: 13 6;
+  fill: #f6df7f;
+  stroke: rgba(174, 73, 55, 0.92);
+  stroke-width: 4.2;
+  filter: url("#roughen");
 }
 
 .node-summary .node-label {
-  fill: #2c211c;
-  font-size: 22px;
+  fill: #2b211b;
+  font-size: 25px;
   font-weight: 800;
 }
 
+.summary-badge-ring {
+  fill: rgba(174, 73, 55, 0.08);
+  stroke: rgba(174, 73, 55, 0.72);
+  stroke-width: 2.4;
+  stroke-dasharray: 6 5;
+  filter: url("#roughen");
+}
+
+.summary-pin {
+  fill: #ae4937;
+  stroke: rgba(49, 42, 34, 0.58);
+  stroke-width: 1.6;
+  filter: url("#roughen");
+}
+
 .node-summary {
-  transform: rotate(-2deg);
+  transform: rotate(-7deg);
 }
 
 .node-summary:hover,
 .node-summary:focus-visible,
 .node-summary.is-active {
-  transform: translateY(-5px) rotate(-3deg);
+  transform: translateY(-8px) rotate(-9deg) scale(1.03);
 }
 
 .node-core .node-halo {

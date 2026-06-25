@@ -82,9 +82,32 @@ function coreHaloPath(node) {
   ].join(" ");
 }
 
+function summarySealPath(node, scale = 1) {
+  const cx = node.x + node.width / 2;
+  const cy = node.y + node.height / 2;
+  const rx = (node.width / 2) * scale;
+  const ry = (node.height / 2) * scale;
+  const points = [];
+  const count = 34;
+
+  for (let index = 0; index < count; index += 1) {
+    const angle = -Math.PI / 2 + (Math.PI * 2 * index) / count;
+    const wobble = index % 2 === 0 ? 1.02 : 0.94;
+    points.push({
+      x: cx + Math.cos(angle) * rx * wobble,
+      y: cy + Math.sin(angle) * ry * wobble
+    });
+  }
+
+  return points
+    .map((point, index) => `${index === 0 ? "M" : "L"} ${point.x.toFixed(1)} ${point.y.toFixed(1)}`)
+    .concat("Z")
+    .join(" ");
+}
+
 function renderTextLines(group, node) {
   const lines = node.labelLines || [node.title];
-  const lineGap = node.level === "core" ? 36 : 29;
+  const lineGap = node.level === "core" ? 36 : node.level === "summary" ? 31 : 29;
   const text = createSvgElement("text", {
     class: "node-label",
     x: node.x + node.width / 2,
@@ -130,7 +153,19 @@ function renderNode(node) {
     group.appendChild(createSvgElement("path", { class: "node-halo", d: coreHaloPath(node) }));
   }
 
-  group.appendChild(createSvgElement("path", { class: "node-shape", d: roughRectPath(node) }));
+  if (node.level === "summary") {
+    group.appendChild(createSvgElement("path", { class: "summary-badge-ring", d: summarySealPath(node, 1.11) }));
+    group.appendChild(createSvgElement("path", { class: "node-shape", d: summarySealPath(node, 0.96) }));
+    group.appendChild(createSvgElement("circle", {
+      class: "summary-pin",
+      cx: node.x + node.width * 0.76,
+      cy: node.y + node.height * 0.24,
+      r: 7
+    }));
+  } else {
+    group.appendChild(createSvgElement("path", { class: "node-shape", d: roughRectPath(node) }));
+  }
+
   renderTextLines(group, node);
 
   if (node.stamp) {

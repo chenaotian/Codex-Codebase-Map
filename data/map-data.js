@@ -392,11 +392,11 @@
         title: "关键结论",
         tier: "汇报入口",
         docSlug: "关键结论",
-        x: 1845,
-        y: 34,
-        width: 235,
-        height: 82,
-        labelLines: ["关键结论"],
+        x: 1855,
+        y: 12,
+        width: 145,
+        height: 145,
+        labelLines: ["关键", "结论"],
         note: "独立汇报入口，集中放置本次源码分析最值得先看的判断、摘要和结论。"
       }
     ]
