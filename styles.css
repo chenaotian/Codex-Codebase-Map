@@ -164,10 +164,8 @@ h1 {
 }
 
 .author-signature {
-  position: absolute;
-  top: clamp(24px, 4vw, 42px);
-  right: clamp(22px, 4vw, 58px);
-  z-index: 7;
+  position: relative;
+  z-index: 3;
   display: inline-grid;
   gap: 1px;
   min-width: 154px;
@@ -214,6 +212,16 @@ h1 {
   letter-spacing: 0;
 }
 
+.map-author-signature {
+  margin: 18px 0 0 12px;
+  transform: rotate(-1.2deg);
+}
+
+.topic-author-signature {
+  margin: 0 0 20px 4px;
+  transform: rotate(-1deg);
+}
+
 .author-signature:hover,
 .author-signature:focus-visible {
   border-color: rgba(174, 73, 55, 0.64);
@@ -224,7 +232,7 @@ h1 {
 
 .legend {
   position: absolute;
-  top: clamp(88px, 7vw, 116px);
+  top: clamp(32px, 5vw, 62px);
   right: clamp(24px, 4vw, 54px);
   z-index: 4;
   display: flex;
@@ -527,11 +535,9 @@ h1 {
     flex-wrap: wrap;
   }
 
-  .author-signature {
-    position: relative;
-    top: auto;
-    right: auto;
-    margin: 0 0 18px auto;
+  .map-author-signature {
+    margin-top: 16px;
+    margin-left: 6px;
   }
 
   .kicker {
@@ -660,17 +666,11 @@ h1 {
   z-index: 1;
 }
 
-.topic-paper > .author-signature {
-  position: absolute;
-  z-index: 7;
-}
-
 .topic-nav {
   display: flex;
   justify-content: space-between;
   gap: 18px;
   align-items: center;
-  margin-top: 42px;
   margin-bottom: 34px;
   color: var(--ink);
   font-size: 0.95rem;
@@ -1714,15 +1714,5 @@ ol.topic-list[data-depth="4"] {
 
   .run-turn-svg {
     min-width: 720px;
-  }
-}
-
-@media (max-width: 980px) {
-  .topic-paper > .author-signature {
-    position: relative;
-  }
-
-  .topic-nav {
-    margin-top: 0;
   }
 }
