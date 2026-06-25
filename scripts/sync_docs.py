@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 import re
 import shutil
-from datetime import datetime
 from pathlib import Path
 
 
@@ -184,16 +183,11 @@ def sync_flow_diagram(config: dict) -> tuple[Path | None, str]:
 
 def write_flow_diagram(config: dict, diagram_path: Path | None, source_kind: str) -> None:
     payload = {
-        "generatedAt": datetime.now().isoformat(timespec="seconds"),
         "sourceKind": source_kind,
         "sourceFile": config["source_file"],
         "xml": read_text_with_fallback(diagram_path) if diagram_path else "",
     }
     write_window_payload(config["output_file"], config["window_var"], payload)
-
-
-def payload_without_generated_at(payload: dict) -> dict:
-    return {key: value for key, value in payload.items() if key != "generatedAt"}
 
 
 def read_window_payload(path: Path) -> dict | None:
@@ -213,7 +207,7 @@ def read_window_payload(path: Path) -> dict | None:
 
 def write_window_payload(path: Path, window_var: str, payload: dict) -> None:
     existing = read_window_payload(path)
-    if existing and payload_without_generated_at(existing) == payload_without_generated_at(payload):
+    if existing == payload:
         return
 
     js = f"window.{window_var} = " + json.dumps(payload, ensure_ascii=False, indent=2) + ";\n"
@@ -275,7 +269,6 @@ def main() -> None:
     source, source_kind = copy_external_docs()
     docs = build_docs(source)
     payload = {
-        "generatedAt": datetime.now().isoformat(timespec="seconds"),
         "sourceKind": source_kind,
         "docs": docs,
     }
