@@ -5,6 +5,8 @@ coverage/
 *.log
 *.tmp
 *.bak
+__pycache__/
+**/__pycache__/
 *.png
 *.jpg
 *.jpeg
