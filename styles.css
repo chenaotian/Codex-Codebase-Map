@@ -647,6 +647,9 @@ h3.topic-heading {
 .inline-code {
   padding: 0.08em 0.28em;
   color: #11100c;
+  font-family: inherit;
+  font-size: 1em;
+  line-height: inherit;
   background: rgba(242, 201, 182, 0.46);
   border: 1px dashed rgba(174, 73, 55, 0.36);
 }
