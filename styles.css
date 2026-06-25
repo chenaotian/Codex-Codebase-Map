@@ -126,8 +126,8 @@ body::before {
 .map-heading {
   position: relative;
   z-index: 3;
-  max-width: 720px;
-  margin: 0 0 clamp(20px, 3vw, 32px);
+  max-width: none;
+  margin: 0 0 24px;
 }
 
 .kicker {
@@ -145,6 +145,13 @@ h1 {
   line-height: 0.95;
   letter-spacing: 0;
   text-wrap: balance;
+}
+
+.map-heading h1 {
+  font-size: 4.35rem;
+  line-height: 1;
+  white-space: nowrap;
+  text-wrap: nowrap;
 }
 
 .subtitle {
@@ -454,6 +461,10 @@ h1 {
     font-size: 3.55rem;
   }
 
+  .map-heading h1 {
+    font-size: 3.05rem;
+  }
+
   .subtitle {
     font-size: 1rem;
   }
@@ -491,6 +502,10 @@ h1 {
 
   h1 {
     font-size: 2.45rem;
+  }
+
+  .map-heading h1 {
+    font-size: 1.75rem;
   }
 
   .subtitle {
