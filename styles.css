@@ -1351,6 +1351,7 @@ ol.topic-list[data-depth="4"] {
 
 .run-turn-detail-heading + .run-turn-detail-paragraph,
 .run-turn-detail-heading + .run-turn-detail-list,
+.run-turn-detail-heading + .run-turn-detail-figure,
 .run-turn-detail-heading + .run-turn-detail-code {
   margin-top: 10px;
 }
@@ -1362,6 +1363,38 @@ ol.topic-list[data-depth="4"] {
 
 .run-turn-detail-list li {
   margin: 6px 0;
+}
+
+.run-turn-detail-figure {
+  position: relative;
+  width: min(100%, 720px);
+  margin: 8px 0 20px;
+  padding: 12px;
+  background: rgba(255, 253, 247, 0.88);
+  border: 1px solid rgba(49, 42, 34, 0.16);
+  box-shadow: 0 14px 24px rgba(61, 50, 33, 0.1);
+  transform: rotate(-0.25deg);
+}
+
+.run-turn-detail-figure::before {
+  content: "";
+  position: absolute;
+  top: -12px;
+  left: 34px;
+  width: 92px;
+  height: 24px;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.08)),
+    rgba(217, 202, 161, 0.62);
+  box-shadow: 0 2px 4px rgba(61, 50, 33, 0.08);
+  transform: rotate(-2deg);
+}
+
+.run-turn-detail-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px dashed rgba(146, 134, 117, 0.5);
 }
 
 .run-turn-detail-code {

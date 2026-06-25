@@ -194,6 +194,39 @@ function appendDetailParagraph(parent, lines) {
   parent.appendChild(paragraph);
 }
 
+function resolveDetailImagePath(doc, rawPath) {
+  const normalized = String(rawPath || "").trim().replace(/^<|>$/g, "");
+  const filename = normalized.split(/[\\/]/).pop();
+
+  if (!filename) {
+    return "";
+  }
+
+  if (/^[A-Za-z]:[\\/]/.test(normalized) || normalized.includes(".assets")) {
+    return encodeURI(`${doc?.assetsBase || ""}${filename}`);
+  }
+
+  if (/^https?:\/\//i.test(normalized) || normalized.startsWith("../") || normalized.startsWith("./")) {
+    return encodeURI(normalized);
+  }
+
+  return encodeURI(`${doc?.assetsBase || ""}${filename}`);
+}
+
+function appendDetailImage(parent, doc, alt, rawPath) {
+  const src = resolveDetailImagePath(doc, rawPath);
+  if (!src) return;
+
+  const figure = htmlElement("figure", "run-turn-detail-figure");
+  const img = htmlElement("img");
+
+  img.src = src;
+  img.alt = alt || "";
+  img.loading = "lazy";
+  figure.appendChild(img);
+  parent.appendChild(figure);
+}
+
 function appendDetailCode(parent, codeLines, language = "") {
   const pre = htmlElement("pre", `run-turn-detail-code language-${language || "text"}`);
   pre.appendChild(htmlElement("code", "", codeLines.join("\n")));
@@ -233,6 +266,7 @@ function appendDetailJump(parent, label) {
 }
 
 function renderDetailMarkdown(markdown, parent) {
+  const detailDoc = findDetailDoc();
   const lines = String(markdown || "").split(/\r?\n/);
   let paragraph = [];
   let listItems = [];
@@ -290,6 +324,14 @@ function renderDetailMarkdown(markdown, parent) {
       const level = heading[1].length;
       const node = htmlElement(level >= 5 ? "h4" : "h3", "run-turn-detail-heading", heading[2].trim());
       parent.appendChild(node);
+      return;
+    }
+
+    const image = trimmed.match(/^!\[([^\]]*)\]\((.+?)\)$/);
+    if (image) {
+      flushParagraph();
+      flushList();
+      appendDetailImage(parent, detailDoc, image[1], image[2]);
       return;
     }
 
