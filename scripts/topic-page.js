@@ -312,23 +312,60 @@ function openImageLightbox(src, alt) {
   lightbox.closeButton.focus();
 }
 
-function appendList(parent, items, ordered) {
-  const list = element(ordered ? "ol" : "ul", "topic-list");
+function createTopicList(item, depth) {
+  const list = element(item.ordered ? "ol" : "ul", "topic-list");
+  list.dataset.depth = String(Math.min(depth, 4));
 
-  if (ordered && items[0]?.number > 1) {
-    list.start = items[0].number;
+  if (item.ordered && item.number > 1) {
+    list.start = item.number;
   }
 
-  items.forEach((item) => {
-    const li = element("li");
-    li.appendChild(renderInline(item.text));
-    if (item.indent) {
-      li.style.marginLeft = `${Math.min(item.indent * 14, 42)}px`;
-    }
-    list.appendChild(li);
-  });
+  return list;
+}
 
-  parent.appendChild(list);
+function appendList(parent, items) {
+  if (!items.length) return;
+
+  const baseIndent = Math.min(...items.map((item) => item.indent));
+  const stack = [];
+
+  items.forEach((item) => {
+    let depth = Math.max(0, item.indent - baseIndent);
+
+    if (depth > stack.length) {
+      depth = stack.length;
+    }
+
+    while (stack.length > depth + 1) {
+      stack.pop();
+    }
+
+    let context = stack[depth];
+
+    if (!context || context.ordered !== item.ordered) {
+      const list = createTopicList(item, depth);
+      context = { list, ordered: item.ordered, lastItem: null };
+      stack[depth] = context;
+      stack.length = depth + 1;
+
+      if (depth === 0) {
+        parent.appendChild(list);
+      } else {
+        const parentContext = stack[depth - 1];
+
+        if (parentContext?.lastItem) {
+          parentContext.lastItem.appendChild(list);
+        } else {
+          parent.appendChild(list);
+        }
+      }
+    }
+
+    const li = element("li", `topic-list-item topic-list-depth-${Math.min(depth, 4)}`);
+    li.appendChild(renderInline(item.text));
+    context.list.appendChild(li);
+    context.lastItem = li;
+  });
 }
 
 function splitTableRow(line) {
@@ -406,7 +443,6 @@ function renderMarkdown(doc) {
   let childLinksInserted = false;
   let paragraph = [];
   let listItems = [];
-  let listOrdered = false;
   let codeLines = [];
   let codeLanguage = "";
   let inCode = false;
@@ -419,7 +455,7 @@ function renderMarkdown(doc) {
 
   function flushList() {
     if (listItems.length) {
-      appendList(article, listItems, listOrdered);
+      appendList(article, listItems);
       listItems = [];
     }
   }
@@ -519,14 +555,9 @@ function renderMarkdown(doc) {
       flushParagraph();
       const match = unordered || ordered;
       const isOrdered = Boolean(ordered);
-
-      if (listItems.length && listOrdered !== isOrdered) {
-        flushList();
-      }
-
-      listOrdered = isOrdered;
       listItems.push({
         indent: Math.floor((match[1] || "").length / 2),
+        ordered: isOrdered,
         number: ordered ? Number(match[2]) : undefined,
         text: (ordered ? match[3] : match[2]).trim()
       });
