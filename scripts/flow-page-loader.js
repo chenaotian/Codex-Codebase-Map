@@ -26,6 +26,7 @@
       config.configure();
     }
 
+    await loadScript(config.highlightScript || "../scripts/code-highlight.js");
     await loadScript(config.mainScript || "../scripts/run-turn-page.js");
   } catch (error) {
     const title = document.querySelector("[data-run-turn-title]");

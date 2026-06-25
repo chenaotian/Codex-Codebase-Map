@@ -121,7 +121,16 @@ function appendParagraph(parent, lines) {
 
 function appendCode(parent, codeLines, language) {
   const pre = element("pre", `topic-code language-${language || "text"}`);
-  pre.appendChild(element("code", "", codeLines.join("\n")));
+  const code = element("code");
+  const text = codeLines.join("\n");
+
+  if (window.CodexCodeHighlight) {
+    code.appendChild(window.CodexCodeHighlight.highlight(text, language));
+  } else {
+    code.textContent = text;
+  }
+
+  pre.appendChild(code);
   parent.appendChild(pre);
 }
 

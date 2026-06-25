@@ -229,7 +229,16 @@ function appendDetailImage(parent, doc, alt, rawPath) {
 
 function appendDetailCode(parent, codeLines, language = "") {
   const pre = htmlElement("pre", `run-turn-detail-code language-${language || "text"}`);
-  pre.appendChild(htmlElement("code", "", codeLines.join("\n")));
+  const code = htmlElement("code");
+  const text = codeLines.join("\n");
+
+  if (window.CodexCodeHighlight) {
+    code.appendChild(window.CodexCodeHighlight.highlight(text, language));
+  } else {
+    code.textContent = text;
+  }
+
+  pre.appendChild(code);
   parent.appendChild(pre);
 }
 

@@ -671,6 +671,39 @@ h3.topic-heading {
   font-family: inherit;
 }
 
+.syntax-token {
+  font-weight: 760;
+}
+
+.syntax-key,
+.syntax-section {
+  color: #285f7f;
+}
+
+.syntax-string {
+  color: #42724d;
+}
+
+.syntax-number,
+.syntax-literal {
+  color: #a33d32;
+}
+
+.syntax-keyword {
+  color: #7a4b91;
+}
+
+.syntax-comment {
+  color: #7a7060;
+  font-style: italic;
+  font-weight: 620;
+}
+
+.syntax-punctuation {
+  color: #5e5040;
+  font-weight: 720;
+}
+
 .topic-list {
   margin: 16px 0 22px;
   padding-left: 2.15rem;
