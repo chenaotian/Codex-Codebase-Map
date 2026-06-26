@@ -81,9 +81,9 @@ run_pending_session_start_hooks，一个hook点，可以决定是否拦截本次
 
 调用set_previous_turn_settings 记录当前使用的模型，如果下一个turn切换模型则会用这个记录的模型做上下文压缩。
 
-### [6] 注入skill/mcp
+### [6] 注入skill/plugin
 
-把之前build_skill找到的skill或mcp之类的提示词写进当前 session 的 conversation history
+把之前build_skill找到的skill或plugin之类的提示词写进当前 session 的 conversation history
 
 ### [7] 创建文件变更追踪
 
