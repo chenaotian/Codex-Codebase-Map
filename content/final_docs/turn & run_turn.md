@@ -93,7 +93,7 @@ run_pending_session_start_hooks，一个hook点，可以决定是否拦截本次
 
 判断input是否为空：
 
-- 如果input为空，则设置can_drain_pending_input =true，允许pending_input注入。
+- 如果input为空，则设置can_drain_pending_input =true，允许pending_input注入。大概场景就是goal/mailbox唤醒，或者regulartask 完成run_turn之后会检测是否还有pending_input，然后可能再跑一次run_turn。
 - **如果input不为空，则说明用户输入了内容，则暂时不允许pending_input注入**，设置can_drain_pending_input = false。
 
 [详情跳转pending_input]

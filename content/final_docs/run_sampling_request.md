@@ -51,7 +51,7 @@ session 中的base_instructions 是session 初始化的时候决定的，thread 
 
 ### [3] loop start
 
-第一次请求使用调用方传进来的 `input`。如果发生可重试 stream 错误，下一轮 retry 不再复用最初的 `input`，而是重新从 session history 克隆 prompt input。
+第一次请求使用调用方传进来的 `input`。如果发生可重试 stream 错误，下一轮 retry 不再复用最初的 `input`，而是重新从 session history 克隆 prompt input。大概就是跟模型交互是流式的嘛，给模型发完消息，模型会一个事件一个事件往出蹦，中间可能会失败，所以需要重试，那么重试就要用之前失败的时候的最新history来重试。
 
 这个设计很重要，可以保证codex 一个任务断开，你直接跟他说继续工作就能接上：
 
