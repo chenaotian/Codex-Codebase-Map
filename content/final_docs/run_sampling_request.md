@@ -60,19 +60,7 @@ session 中的base_instructions 是session 初始化的时候决定的，thread 
 
 ### [4] build_prompt
 
-组装本次请求的prompt，大概有这些，最后组装成一个json：
-
-```rust
-Prompt {
-    input,
-    tools: router.model_visible_specs(),
-    parallel_tool_calls: turn_context.model_info.supports_parallel_tool_calls,
-    base_instructions,
-    personality: turn_context.personality,
-    output_schema: turn_context.final_output_json_schema.clone(),
-    output_schema_strict: !guardian::is_guardian_reviewer_source(&turn_context.session_source),
-}
-```
+组装本次请求的prompt，大概有这些，最后组装成一个json，见下一节。
 
 ### [5] try_run_sampling_request
 
