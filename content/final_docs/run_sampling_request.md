@@ -155,7 +155,7 @@ session 中的base_instructions 是session 初始化的时候决定的，thread 
     }
   ],
   "tool_choice": "auto",
-  "parallel_tool_calls": true,
+  "parallel_tool_calls": true, //允许模型一次返回多个toolcall
   "reasoning": {
     "effort": "medium",
     "summary": "auto"
