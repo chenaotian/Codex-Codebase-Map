@@ -36,13 +36,36 @@ goal相关工具不是默认工具，需要满足：
 
 #### 行为
 
-创建好goal后会见目标存入goals_1.sqlite 数据库中，然后先处理用户本次请求，turn结束后，如果goal 仍然active并且满足下面条件，codex 会自动给上下文补充一条提示词，大概就是”继续朝当前 active thread goal 工作。“这种，然后继续工作(本质上也是启动一个run_turn，类似于codex 替你发送了一个指令)。
+**创建好goal后会见目标存入goals_1.sqlite 数据库中，然后先处理用户本次请求，turn结束后，如果goal 仍然active并且满足下面条件，codex 会自动给上下文补充一条提示词，大概就是”继续朝当前 active thread goal 工作。“这种，然后继续工作(本质上也是启动一个run_turn，类似于codex 替你发送了一个继续指令)。**
 
-- 如果不满足下面的所有条件，则不会自动启动goal
 - 如果再启动goal 之前输入了指令，则先完成用户指令
 - 一旦goal启动，则turn会变的不是空闲，用户输入会进入pending_input
-- 模型执行goal 可能会阻塞，导致没完成goal 就像结束了这轮turn，这时如果用户没有新输入，可能又触发空闲continuation 条件，goal可能继续工作。为了防止无限循环，提示词中会告诉模型，如果同一个阻塞条件阻塞了三次，则将goal 标记为blocked。
-- 如果模型认为完成任务，则模型主动调用update_goal 将goal状态标记为complete
+- 模型执行goal 可能会阻塞，导致没完成goal 就想结束这轮turn，这时如果用户没有新输入，可能又触发空闲continuation 条件，goal可能继续工作。为了防止无限循环，提示词中会告诉模型，如果同一个阻塞条件阻塞了三次，则将goal 标记为blocked。
+- **如果模型认为完成任务，则模型主动调用update_goal 将goal状态标记为complete**
+
+#### 自动继续的条件
+
+- goals feature 开启
+- 当前 thread 不是 ephemeral
+- 当前没有 active turn
+- 没有 pending 用户输入/mailbox输入等更高优先级工作
+- 当前不在忽略 goal continuation 的模式，比如 plan mode
+- state DB 里确实有 active goal
+- goal 没变成 complete / blocked / usageLimited / budgetLimited 等停止状态
+
+#### goal数据库结构
+
+```
+thread_id          线程 ID，也是主键；一个 thread 最多一个 goal
+goal_id            当前 goal 的 UUID；新建/替换 goal 会变
+objective          goal 的自然语言目标
+status             goal 状态
+token_budget       可选 token 预算，NULL 表示不限
+tokens_used        已统计 token 数，默认 0
+time_used_seconds  已统计耗时秒数，默认 0
+created_at_ms      创建时间，epoch milliseconds
+updated_at_ms      更新时间，epoch milliseconds
+```
 
 #### 提示词
 
@@ -154,33 +177,9 @@ Do not call update_goal unless the goal is complete or the strict blocked audit 
 除非 goal 已完成，或满足上面的严格 blocked audit，否则不要调用 update_goal。不要仅仅因为预算快用完或因为你要停止工作，就把 goal 标记为 complete。
 ```
 
-#### 自动继续的条件
-
-- goals feature 开启
-- 当前 thread 不是 ephemeral
-- 当前没有 active turn
-- 没有 pending 用户输入/邮箱输入等更高优先级工作
-- 当前不在忽略 goal continuation 的模式，比如 plan mode
-- state DB 里确实有 active goal
-- goal 没变成 complete / blocked / usageLimited / budgetLimited 等停止状态
-
-#### goal数据库结构
-
-```
-thread_id          线程 ID，也是主键；一个 thread 最多一个 goal
-goal_id            当前 goal 的 UUID；新建/替换 goal 会变
-objective          goal 的自然语言目标
-status             goal 状态
-token_budget       可选 token 预算，NULL 表示不限
-tokens_used        已统计 token 数，默认 0
-time_used_seconds  已统计耗时秒数，默认 0
-created_at_ms      创建时间，epoch milliseconds
-updated_at_ms      更新时间，epoch milliseconds
-```
-
 ### update_goal 
 
-模型调用update_goal  来更新goal 的状态，完成或阻塞。update_goal 只允许模型标记 complete 或 blocked，不允许模型自己 pause。pause/resume/BudgetLimited/UsageLimited 这些状态由用户或系统控制。
+模型调用update_goal  来更新goal 的状态，完成或阻塞。update_goal 只允许模型标记 complete 或 blocked。
 
 也就是说，只能传如下两个参数：
 
@@ -198,14 +197,13 @@ updated_at_ms      更新时间，epoch milliseconds
 
 ```
 Active / Paused
-主要是用户通过前端按钮、菜单、slash command 设置的。
-比如 /goal pause、/goal resume，或者 UI 里的暂停/恢复按钮。
+主要是用户设置的。
+比如 /goal pause、/goal resume。
 
 BudgetLimited / UsageLimited
 主要是系统自动设置的。
 BudgetLimited 是 token budget 用完了；
 UsageLimited 是遇到账户/模型使用限制了。
-用户一般不会手动点成这两个状态。
 ```
 
 ### get_goal

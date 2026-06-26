@@ -126,8 +126,8 @@ policy:
          -> build_skill_injections
               -> 读取对应 SKILL.md 正文
               -> 生成 SkillInjection items
-         -> record_conversation_items(...)
-         		-> 写入 conversation history
+     -> record_conversation_items(...)
+         -> 写入 conversation history
   ```
 
   **用户点名skill 的判断依据，用户的input 里skill字段**：
